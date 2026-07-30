@@ -43,6 +43,9 @@ export const store = createStore<CheckoutState>({
       state.productId = productId;
       state.step = 'payment-data';
     },
+    setStep(state, step: CheckoutStep) {
+      state.step = step;
+    },
     reset(state) {
       Object.assign(state, defaultState());
     },

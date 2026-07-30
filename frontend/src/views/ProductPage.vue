@@ -36,12 +36,14 @@
         </button>
       </div>
     </section>
+    <CheckoutModal v-if="product" :product="product" @confirm="handlePayment" />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { getFeaturedProduct } from '../api/products.api';
+import CheckoutModal, { type CheckoutPaymentData } from '../components/checkout/CheckoutModal.vue';
 import { store } from '../store';
 import type { Product } from '../types/product';
 
@@ -72,6 +74,10 @@ const loadProduct = async (): Promise<void> => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handlePayment = (_paymentData: CheckoutPaymentData): void => {
+  // The transaction endpoint is added in the next backend increment.
 };
 
 const startCheckout = (): void => {
