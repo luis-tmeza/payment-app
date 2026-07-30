@@ -138,3 +138,35 @@ h1 {
     width: 100%;
   }
 }
+
+.product-hero--status {
+  min-height: 22rem;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.stock--empty {
+  color: #a32d2d;
+}
+
+.pay-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.secondary-button {
+  justify-self: center;
+  border: 1px solid #153b4d;
+  background: transparent;
+  color: #153b4d;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-weight: 700;
+}
+
+.image-placeholder {
+  min-height: 20rem;
+  background: #dce8df;
+}

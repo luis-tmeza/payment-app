@@ -9,7 +9,6 @@ export class PrismaProductRepository implements ProductRepository {
 
   async findFeatured(): Promise<Product | null> {
     return this.prisma.product.findFirst({
-      where: { stock: { gt: 0 } },
       orderBy: { createdAt: 'asc' },
     });
   }
