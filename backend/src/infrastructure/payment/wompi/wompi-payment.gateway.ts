@@ -45,6 +45,27 @@ export class WompiPaymentGateway implements PaymentGateway {
     });
 
     const data = response.data?.data as Record<string, unknown> | undefined;
+    const payment = this.toPaymentResponse(data);
+    return payment.status === 'PENDING' && payment.transactionId
+      ? this.pollTransaction(payment.transactionId, payment)
+      : payment;
+  }
+
+  private async pollTransaction(transactionId: string, lastResponse: PaymentResponse): Promise<PaymentResponse> {
+    let current = lastResponse;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1_200));
+      const response = await axios.get(`${this.baseUrl}/transactions/${transactionId}`, {
+        headers: { Authorization: `Bearer ${this.publicKey}` },
+        timeout: 10_000,
+      });
+      current = this.toPaymentResponse(response.data?.data as Record<string, unknown> | undefined);
+      if (current.status !== 'PENDING') return current;
+    }
+    return current;
+  }
+
+  private toPaymentResponse(data: Record<string, unknown> | undefined): PaymentResponse {
     return {
       status: this.normalizeStatus(String(data?.status ?? 'ERROR')),
       transactionId: typeof data?.id === 'string' ? data.id : undefined,
@@ -52,7 +73,6 @@ export class WompiPaymentGateway implements PaymentGateway {
       rawResponse: data,
     };
   }
-
   private async getAcceptanceTokens(): Promise<{ acceptanceToken: string; personalDataToken: string }> {
     const response = await axios.get(`${this.baseUrl}/merchants/${this.publicKey}`, {
       headers: { Authorization: `Bearer ${this.publicKey}` },
