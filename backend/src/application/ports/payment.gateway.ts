@@ -1,6 +1,7 @@
 import { CheckoutCard, CheckoutCustomer } from '../../domain/checkout/checkout';
 
 export const PAYMENT_GATEWAY = Symbol('PAYMENT_GATEWAY');
+export type AcceptanceDocuments = { termsUrl: string; personalDataUrl: string };
 
 export type PaymentRequest = {
   reference: string;
@@ -20,5 +21,6 @@ export type PaymentResponse = {
 };
 
 export interface PaymentGateway {
+  getAcceptanceDocuments(): Promise<AcceptanceDocuments>;
   charge(input: PaymentRequest): Promise<PaymentResponse>;
 }

@@ -18,6 +18,20 @@ export class WompiPaymentGateway implements PaymentGateway {
     this.integritySecret = this.config.get<string>('WOMPI_INTEGRITY_SECRET') ?? '';
   }
 
+  async getAcceptanceDocuments(): Promise<{ termsUrl: string; personalDataUrl: string }> {
+    this.ensurePublicKey();
+    const response = await axios.get(`${this.baseUrl}/merchants/${this.publicKey}`, {
+      headers: { Authorization: `Bearer ${this.publicKey}` },
+      timeout: 10_000,
+    });
+    const data = response.data?.data;
+    const termsUrl = data?.presigned_acceptance?.permalink;
+    const personalDataUrl = data?.presigned_personal_data_auth?.permalink;
+    if (typeof termsUrl !== 'string' || typeof personalDataUrl !== 'string') {
+      throw new Error('Wompi acceptance documents are unavailable');
+    }
+    return { termsUrl, personalDataUrl };
+  }
   async charge(input: PaymentRequest): Promise<PaymentResponse> {
     this.ensureConfiguration();
     const acceptance = await this.getAcceptanceTokens();
@@ -112,6 +126,9 @@ export class WompiPaymentGateway implements PaymentGateway {
     return status === 'APPROVED' || status === 'DECLINED' || status === 'PENDING' ? status : 'ERROR';
   }
 
+  private ensurePublicKey(): void {
+    if (!this.publicKey) throw new Error('Wompi public key is not configured');
+  }
   private ensureConfiguration(): void {
     if (!this.publicKey || !this.privateKey || !this.integritySecret) {
       throw new Error('Wompi credentials are not configured');
