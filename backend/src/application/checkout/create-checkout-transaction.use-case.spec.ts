@@ -9,7 +9,10 @@ describe('CreateCheckoutTransactionUseCase', () => {
     createPending: jest.fn(),
     complete: jest.fn(),
   };
-  const gateway: jest.Mocked<PaymentGateway> = { charge: jest.fn() };
+  const gateway: jest.Mocked<PaymentGateway> = {
+    getAcceptanceDocuments: jest.fn(),
+    charge: jest.fn(),
+  };
   const config = { get: jest.fn((key: string) => (key === 'BASE_FEE_CENTS' ? '250000' : '900000')) } as unknown as ConfigService;
   const useCase = new CreateCheckoutTransactionUseCase(repository, gateway, config);
   const command = {
