@@ -7,6 +7,7 @@ export type CheckoutState = {
   productId: string | null;
   quantity: number;
   transactionReference: string | null;
+  transactionStatus: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR' | null;
 };
 
 const STORAGE_KEY = 'payment-app.checkout';
@@ -16,6 +17,7 @@ const defaultState = (): CheckoutState => ({
   productId: null,
   quantity: 1,
   transactionReference: null,
+  transactionStatus: null,
 });
 
 const loadState = (): CheckoutState => {
@@ -45,6 +47,11 @@ export const store = createStore<CheckoutState>({
     },
     setStep(state, step: CheckoutStep) {
       state.step = step;
+    },
+    setTransactionResult(state, payload: { reference: string; status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'ERROR' }) {
+      state.transactionReference = payload.reference;
+      state.transactionStatus = payload.status;
+      state.step = 'result';
     },
     reset(state) {
       Object.assign(state, defaultState());

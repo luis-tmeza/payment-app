@@ -36,20 +36,40 @@
         </button>
       </div>
     </section>
-    <CheckoutModal v-if="product" :product="product" @confirm="handlePayment" />
+    <CheckoutModal
+      v-if="product"
+      :product="product"
+      :is-processing="isProcessing"
+      :payment-error="paymentError"
+      @confirm="handlePayment"
+    />
+    <PaymentResultModal
+      v-if="paymentResult"
+      :is-open="store.state.step === 'result'"
+      :status="paymentResult.status"
+      :reference="paymentResult.reference"
+      :status-message="paymentResult.statusMessage"
+      :total-amount-cents="paymentResult.totalAmountCents"
+      @return-to-product="returnToProduct"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { createCheckoutTransaction, type CheckoutTransactionResponse } from '../api/checkout.api';
 import { getFeaturedProduct } from '../api/products.api';
 import CheckoutModal, { type CheckoutPaymentData } from '../components/checkout/CheckoutModal.vue';
+import PaymentResultModal from '../components/checkout/PaymentResultModal.vue';
 import { store } from '../store';
 import type { Product } from '../types/product';
 
 const product = ref<Product | null>(null);
 const isLoading = ref(true);
 const loadError = ref(false);
+const isProcessing = ref(false);
+const paymentError = ref('');
+const paymentResult = ref<CheckoutTransactionResponse | null>(null);
 
 const formattedPrice = computed(() => {
   if (!product.value) {
@@ -76,8 +96,25 @@ const loadProduct = async (): Promise<void> => {
   }
 };
 
-const handlePayment = (_paymentData: CheckoutPaymentData): void => {
-  // The transaction endpoint is added in the next backend increment.
+const handlePayment = async (paymentData: CheckoutPaymentData): Promise<void> => {
+  if (!product.value) return;
+  isProcessing.value = true;
+  paymentError.value = '';
+
+  try {
+    paymentResult.value = await createCheckoutTransaction(product.value.id, paymentData);
+    store.commit('setTransactionResult', paymentResult.value);
+  } catch {
+    paymentError.value = 'No fue posible procesar el pago. Verifica tus datos e intentalo nuevamente.';
+  } finally {
+    isProcessing.value = false;
+  }
+};
+
+const returnToProduct = async (): Promise<void> => {
+  paymentResult.value = null;
+  store.commit('reset');
+  await loadProduct();
 };
 
 const startCheckout = (): void => {
