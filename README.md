@@ -4,10 +4,10 @@ Monorepo para una prueba tecnica de checkout de pago con integracion a Wompi San
 
 ## Stack elegido
 
-- Frontend: Vue 3, TypeScript, Vite, Pinia, Vue Router, Vitest.
+- Frontend: Vue 3, TypeScript, Vite, Vuex 4, Vue Router, Vitest.
 - Backend: NestJS, TypeScript, Jest, Prisma, PostgreSQL.
 - Arquitectura backend: hexagonal con casos de uso, puertos y adaptadores.
-- Estado de checkout: Pinia con persistencia local para recuperar avance despues de refresh.
+- Estado de checkout: Vuex con persistencia local para recuperar avance despues de refresh.
 
 ## Estructura
 
@@ -46,10 +46,18 @@ Ver [backend/.env.example](backend/.env.example) y [frontend/.env.example](front
 
 Las llaves privadas de Wompi no deben versionarse. Copia los valores reales solo en `.env` local o en secretos del proveedor cloud.
 
-## Pendiente por completar
+## Plan de implementacion y commits
 
-- Documentar Swagger/Postman.
-- Agregar resultados reales de cobertura.
-- Agregar instrucciones de despliegue cloud.
+1. `chore`: base del monorepo y convenciones de desarrollo. Completado.
+2. `feat(frontend)`: Vuex, persistencia del checkout y base SPA. En curso.
+3. `feat(backend)`: consulta de producto mediante caso de uso, puerto Prisma y Swagger.
+4. `feat(frontend)`: producto conectado al API, carga, error y estado sin inventario.
+5. `feat(checkout)`: formulario modal de tarjeta y entrega, validaciones y deteccion de franquicia.
+6. `feat(transactions)`: creacion PENDING, cliente Wompi Sandbox y finalizacion atomica de pago, entrega e inventario.
+7. `feat(frontend)`: resumen, resultado de transaccion y recuperacion de estado.
+8. `test`: pruebas unitarias y cobertura superior al 80% en ambos proyectos.
+9. `docs`: Swagger, modelo de datos, configuracion local y despliegue.
+
+Cada punto se confirmara en un commit funcional, verificable y sin incluir secretos.
 
 
