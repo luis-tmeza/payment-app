@@ -50,8 +50,8 @@
           </fieldset>
 
           <div class="consent-fields">
-            <label class="consent-field"><input v-model="form.acceptedTerms" type="checkbox" required /><span>Acepto los terminos y condiciones de Wompi.</span></label>
-            <label class="consent-field"><input v-model="form.acceptedPersonalData" type="checkbox" required /><span>Autorizo el tratamiento de mis datos personales.</span></label>
+            <label class="consent-field"><input v-model="form.acceptedTerms" type="checkbox" required /><span>Acepto los <a v-if="acceptanceDocuments" :href="acceptanceDocuments.termsUrl" target="_blank" rel="noopener">terminos y condiciones de Wompi</a><template v-else>terminos y condiciones de Wompi</template>.</span></label>
+            <label class="consent-field"><input v-model="form.acceptedPersonalData" type="checkbox" required /><span>Autorizo el <a v-if="acceptanceDocuments" :href="acceptanceDocuments.personalDataUrl" target="_blank" rel="noopener">tratamiento de mis datos personales</a><template v-else>tratamiento de mis datos personales</template>.</span></label>
           </div>
           <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
           <button class="pay-button checkout-submit" type="submit">Continuar al resumen</button>
@@ -85,8 +85,9 @@ import { CreditCard, MapPin, X } from 'lucide-vue-next';
 import { store } from '../../store';
 import { cardDigits, detectCardBrand, formatCardNumber as displayCardNumber, formatExpiration as displayExpiration, isValidCardNumber, isValidExpiration } from '../../utils/card';
 import type { Product } from '../../types/product';
+import type { AcceptanceDocuments } from '../../types/acceptance-documents';
 
-const props = defineProps<{ product: Product; isProcessing?: boolean; paymentError?: string }>();
+const props = defineProps<{ product: Product; isProcessing?: boolean; paymentError?: string; acceptanceDocuments?: AcceptanceDocuments | null }>();
 
 export type CheckoutPaymentData = {
   cardNumber: string;

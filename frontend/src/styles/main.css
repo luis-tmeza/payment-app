@@ -418,3 +418,4 @@ h1 {
 .result-details dt, .result-details dd { margin: 0; }
 .result-details dt { color: #62758a; }
 .result-details dd { font-weight: 800; }
+.consent-field a { color: #0b6bcb; font-weight: 700; }

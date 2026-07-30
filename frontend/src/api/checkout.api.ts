@@ -1,5 +1,6 @@
 import { http } from './http';
 import type { CheckoutPaymentData } from '../components/checkout/CheckoutModal.vue';
+import type { AcceptanceDocuments } from '../types/acceptance-documents';
 
 export type CheckoutTransactionResponse = {
   reference: string;
@@ -31,5 +32,9 @@ export const createCheckoutTransaction = async (
     acceptedTerms: payment.acceptedTerms,
     acceptedPersonalData: payment.acceptedPersonalData,
   });
+  return data;
+};
+export const getAcceptanceDocuments = async (): Promise<AcceptanceDocuments> => {
+  const { data } = await http.get<AcceptanceDocuments>('/checkout/acceptance-documents');
   return data;
 };

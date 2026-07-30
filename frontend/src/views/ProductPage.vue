@@ -41,6 +41,7 @@
       :product="product"
       :is-processing="isProcessing"
       :payment-error="paymentError"
+      :acceptance-documents="acceptanceDocuments"
       @confirm="handlePayment"
     />
     <PaymentResultModal
@@ -57,12 +58,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { createCheckoutTransaction, type CheckoutTransactionResponse } from '../api/checkout.api';
+import { createCheckoutTransaction, getAcceptanceDocuments, type CheckoutTransactionResponse } from '../api/checkout.api';
 import { getFeaturedProduct } from '../api/products.api';
 import CheckoutModal, { type CheckoutPaymentData } from '../components/checkout/CheckoutModal.vue';
 import PaymentResultModal from '../components/checkout/PaymentResultModal.vue';
 import { store } from '../store';
 import type { Product } from '../types/product';
+import type { AcceptanceDocuments } from '../types/acceptance-documents';
 
 const product = ref<Product | null>(null);
 const isLoading = ref(true);
@@ -70,6 +72,7 @@ const loadError = ref(false);
 const isProcessing = ref(false);
 const paymentError = ref('');
 const paymentResult = ref<CheckoutTransactionResponse | null>(null);
+const acceptanceDocuments = ref<AcceptanceDocuments | null>(null);
 
 const formattedPrice = computed(() => {
   if (!product.value) {
@@ -117,8 +120,13 @@ const returnToProduct = async (): Promise<void> => {
   await loadProduct();
 };
 
+const loadAcceptanceDocuments = async (): Promise<void> => {
+  try { acceptanceDocuments.value = await getAcceptanceDocuments(); } catch { acceptanceDocuments.value = null; }
+};
+
 const startCheckout = (): void => {
   if (product.value && product.value.stock > 0) {
+    void loadAcceptanceDocuments();
     store.commit('selectProduct', product.value.id);
   }
 };
