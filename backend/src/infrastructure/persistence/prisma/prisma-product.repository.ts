@@ -8,15 +8,11 @@ export class PrismaProductRepository implements ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findFeatured(): Promise<Product | null> {
-    return this.prisma.product.findFirst({
-      orderBy: { createdAt: 'asc' },
-    });
+    const product = await this.prisma.product.findFirst({ orderBy: { createdAt: 'asc' } });
+    return product ? { ...product, stock: product.stock - product.reservedStock } : null;
   }
 
   async reserveStock(productId: string, quantity: number): Promise<Product> {
-    return this.prisma.product.update({
-      where: { id: productId },
-      data: { stock: { decrement: quantity } },
-    });
+    return this.prisma.product.update({ where: { id: productId }, data: { stock: { decrement: quantity } } });
   }
 }

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { CheckoutCommand, CheckoutResult } from '../../domain/checkout/checkout';
 import { Result, err, ok } from '../../domain/shared/result';
-import { CHECKOUT_REPOSITORY, CheckoutRepository } from '../ports/checkout.repository';
+import { CHECKOUT_REPOSITORY, CheckoutRepository, StockUnavailableError } from '../ports/checkout.repository';
 import { PAYMENT_GATEWAY, PaymentGateway } from '../ports/payment.gateway';
 
 export type CheckoutError = 'PRODUCT_NOT_FOUND' | 'OUT_OF_STOCK' | 'PAYMENT_GATEWAY_ERROR';
@@ -23,17 +23,23 @@ export class CreateCheckoutTransactionUseCase {
 
     const baseFeeCents = Number(this.config.get<string>('BASE_FEE_CENTS') ?? 250000);
     const deliveryFeeCents = Number(this.config.get<string>('DELIVERY_FEE_CENTS') ?? 900000);
-    const pending = await this.checkoutRepository.createPending({
-      reference: `PAY-${randomUUID()}`,
-      product,
-      quantity: command.quantity,
-      baseFeeCents,
-      deliveryFeeCents,
-      customer: command.customer,
-      delivery: command.delivery,
-      cardBrand: this.cardBrand(command.card.number),
-      cardLastFour: command.card.number.replace(/\D/g, '').slice(-4),
-    });
+    let pending;
+    try {
+      pending = await this.checkoutRepository.createPending({
+        reference: `PAY-${randomUUID()}`,
+        product,
+        quantity: command.quantity,
+        baseFeeCents,
+        deliveryFeeCents,
+        customer: command.customer,
+        delivery: command.delivery,
+        cardBrand: this.cardBrand(command.card.number),
+        cardLastFour: command.card.number.replace(/\D/g, '').slice(-4),
+      });
+    } catch (error) {
+      if (error instanceof StockUnavailableError) return err('OUT_OF_STOCK');
+      throw error;
+    }
 
     try {
       const payment = await this.paymentGateway.charge({

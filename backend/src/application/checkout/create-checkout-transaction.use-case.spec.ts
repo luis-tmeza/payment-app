@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { CheckoutRepository } from '../ports/checkout.repository';
+import { CheckoutRepository, StockUnavailableError } from '../ports/checkout.repository';
 import { PaymentGateway } from '../ports/payment.gateway';
 import { CreateCheckoutTransactionUseCase } from './create-checkout-transaction.use-case';
 
@@ -42,4 +42,12 @@ describe('CreateCheckoutTransactionUseCase', () => {
     await expect(useCase.execute(command)).resolves.toEqual({ ok: false, error: 'OUT_OF_STOCK' });
     expect(gateway.charge).not.toHaveBeenCalled();
   });
-});
+
+  it('does not charge when the atomic inventory reservation is rejected', async () => {
+    repository.findProduct.mockResolvedValue({ id: 'product-1', name: 'Headphones', description: 'Test', priceCents: 100000, stock: 1, imageUrl: null });
+    repository.createPending.mockRejectedValue(new StockUnavailableError());
+
+    await expect(useCase.execute(command)).resolves.toEqual({ ok: false, error: 'OUT_OF_STOCK' });
+    expect(gateway.charge).not.toHaveBeenCalled();
+    expect(repository.complete).not.toHaveBeenCalled();
+  });});

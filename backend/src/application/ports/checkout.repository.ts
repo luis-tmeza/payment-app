@@ -3,6 +3,12 @@ import { Product } from '../../domain/product/product';
 
 export const CHECKOUT_REPOSITORY = Symbol('CHECKOUT_REPOSITORY');
 
+export class StockUnavailableError extends Error {
+  constructor() {
+    super('Product stock is unavailable');
+  }
+}
+
 export type CreatePendingCheckout = {
   reference: string;
   product: Product;
