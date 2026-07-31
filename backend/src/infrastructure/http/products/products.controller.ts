@@ -2,6 +2,7 @@ import { Controller, Get, HttpCode, NotFoundException } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetFeaturedProductUseCase } from '../../../application/product/get-featured-product.use-case';
 import { GetProductCatalogUseCase } from '../../../application/product/get-product-catalog.use-case';
+import { Product } from '../../../domain/product/product';
 
 class ProductResponse {
   id!: string;
@@ -10,6 +11,7 @@ class ProductResponse {
   priceCents!: number;
   stock!: number;
   imageUrl!: string | null;
+
 }
 
 @ApiTags('products')
@@ -26,7 +28,7 @@ export class ProductsController {
   @ApiOkResponse({ type: [ProductResponse] })
   async getAll(): Promise<ProductResponse[]> {
     const products = await this.getProductCatalog.execute();
-    return products.map((product) => ({ ...product, imageUrl: product.imageUrl ?? null }));
+    return products.map((product) => this.toResponse(product));
   }
 
   @Get('featured')
@@ -36,6 +38,16 @@ export class ProductsController {
   async getFeatured(): Promise<ProductResponse> {
     const result = await this.getFeaturedProduct.execute();
     if (!result.ok) throw new NotFoundException('No available product was found');
-    return { ...result.value, imageUrl: result.value.imageUrl ?? null };
+    return this.toResponse(result.value);
+  }
+  private toResponse(product: Product): ProductResponse {
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      priceCents: product.priceCents,
+      stock: product.stock,
+      imageUrl: product.imageUrl ?? null,
+    };
   }
 }
