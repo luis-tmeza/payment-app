@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 
-const { getFeaturedProduct, getAcceptanceDocuments, createCheckoutTransaction } = vi.hoisted(() => ({
-  getFeaturedProduct: vi.fn(), getAcceptanceDocuments: vi.fn(), createCheckoutTransaction: vi.fn(),
+const { getProducts, getAcceptanceDocuments, createCheckoutTransaction } = vi.hoisted(() => ({
+  getProducts: vi.fn(), getAcceptanceDocuments: vi.fn(), createCheckoutTransaction: vi.fn(),
 }));
-vi.mock('../api/products.api', () => ({ getFeaturedProduct }));
+vi.mock('../api/products.api', () => ({ getProducts }));
 vi.mock('../api/checkout.api', () => ({ getAcceptanceDocuments, createCheckoutTransaction }));
 
 import ProductPage from './ProductPage.vue';
@@ -28,7 +28,7 @@ describe('ProductPage', () => {
   });
 
   it('loads product data and opens checkout with acceptance documents', async () => {
-    getFeaturedProduct.mockResolvedValue(product);
+    getProducts.mockResolvedValue([product]);
     getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });
     const wrapper = mountPage();
     await flushPromises();
@@ -40,17 +40,17 @@ describe('ProductPage', () => {
   });
 
   it('shows a retry action when loading fails and reloads the product', async () => {
-    getFeaturedProduct.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(product);
+    getProducts.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce([product]);
     const wrapper = mountPage();
     await flushPromises();
-    expect(wrapper.text()).toContain('No fue posible cargar el producto.');
+    expect(wrapper.text()).toContain('No fue posible cargar el catalogo.');
     await wrapper.get('.secondary-button').trigger('click');
     await flushPromises();
     expect(wrapper.text()).toContain('Audifonos');
   });
 
   it('records payment results and returns to the product', async () => {
-    getFeaturedProduct.mockResolvedValue(product);
+    getProducts.mockResolvedValue([product]);
     createCheckoutTransaction.mockResolvedValue({ reference: 'PAY-1', status: 'APPROVED', totalAmountCents: 17150000 });
     const wrapper = mountPage();
     await flushPromises();

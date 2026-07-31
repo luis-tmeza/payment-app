@@ -9,10 +9,19 @@ export class PrismaProductRepository implements ProductRepository {
 
   async findFeatured(): Promise<Product | null> {
     const product = await this.prisma.product.findFirst({ orderBy: { createdAt: 'asc' } });
-    return product ? { ...product, stock: product.stock - product.reservedStock } : null;
+    return product ? this.toProduct(product) : null;
+  }
+
+  async findAll(): Promise<Product[]> {
+    const products = await this.prisma.product.findMany({ orderBy: { createdAt: 'asc' } });
+    return products.map((product) => this.toProduct(product));
   }
 
   async reserveStock(productId: string, quantity: number): Promise<Product> {
     return this.prisma.product.update({ where: { id: productId }, data: { stock: { decrement: quantity } } });
+  }
+
+  private toProduct(product: Product & { reservedStock: number }): Product {
+    return { ...product, stock: product.stock - product.reservedStock };
   }
 }
