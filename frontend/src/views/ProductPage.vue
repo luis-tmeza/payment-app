@@ -7,6 +7,7 @@
     <template v-else-if="products.length"><section class="catalog-toolbar" aria-label="Informacion del catalogo"><p><strong>{{ products.length }} productos</strong> disponibles para envio nacional</p><span>Revisa el detalle, agrega al carrito o compra directamente</span></section><section id="catalog" class="catalog-layout" aria-label="Catalogo de productos"><section class="product-grid" aria-label="Productos disponibles"><article v-for="item in products" :key="item.id" class="product-card"><button type="button" class="product-card__select" :aria-label="`Ver detalle de ${item.name}`" @click="viewProduct(item)"><img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" /><div v-else class="image-placeholder" aria-hidden="true"></div></button><div class="product-card__body"><div class="product-card__meta"><span>{{ item.stock > 0 ? `${item.stock} disponibles` : 'Agotado' }}</span></div><strong>{{ item.name }}</strong><p>{{ item.description }}</p><span class="product-card__price">{{ formatMoney(item.priceCents) }}</span><div class="product-card__actions"><button class="secondary-button" type="button" @click="viewProduct(item)">Ver detalle</button><button class="cart-add-button" type="button" :disabled="item.stock === 0" @click="addProductToCart(item)"><ShoppingCart :size="16" aria-hidden="true" /><span>Agregar</span></button><button class="pay-button" type="button" :disabled="item.stock === 0" @click="buyProduct(item)">Comprar</button></div></div></article></section></section></template>
     <ProductDetailModal v-if="selectedProduct" :is-open="isDetailOpen" :product="selectedProduct" @close="closeDetails" @add-to-cart="addProductToCart(selectedProduct)" @buy="startCheckout" />
     <CartDrawer :is-open="isCartOpen" :items="store.state.cart" :subtotal-cents="cartSubtotalCents" @close="isCartOpen = false" @increase="increaseCartItem" @decrease="decreaseCartItem" @remove="removeFromCart" />
+    <button v-if="cartItemCount" class="cart-quick-view" type="button" :aria-label="`Ver carrito con ${cartItemCount} productos`" @click="isCartOpen = true"><ShoppingBag :size="20" aria-hidden="true" /><span><strong>{{ cartItemCount }} {{ cartItemCount === 1 ? 'producto' : 'productos' }}</strong><small>{{ formatMoney(cartSubtotalCents) }}</small></span><ArrowRight :size="18" aria-hidden="true" /></button>
     <CheckoutModal v-if="selectedProduct" :product="selectedProduct" :is-processing="isProcessing" :payment-error="paymentError" :acceptance-documents="acceptanceDocuments" @confirm="handlePayment" />
     <PaymentResultModal v-if="paymentResult" :is-open="store.state.step === 'result'" :status="paymentResult.status" :reference="paymentResult.reference" :status-message="paymentResult.statusMessage" :total-amount-cents="paymentResult.totalAmountCents" @return-to-product="returnToProduct" />
   </main>
@@ -14,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { ShieldCheck, ShoppingBag, ShoppingCart } from 'lucide-vue-next';
+import { ArrowRight, ShieldCheck, ShoppingBag, ShoppingCart } from 'lucide-vue-next';
 import { createCheckoutTransaction, getAcceptanceDocuments, type CheckoutTransactionResponse } from '../api/checkout.api';
 import { getProducts } from '../api/products.api';
 import CartDrawer from '../components/CartDrawer.vue';

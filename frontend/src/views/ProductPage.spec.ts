@@ -48,6 +48,7 @@ describe('ProductPage', () => {
     await flushPromises();
     await wrapper.get('.cart-add-button').trigger('click');
     expect(store.state.cart).toEqual([{ ...product, quantity: 1 }]);
+    expect(wrapper.find('.cart-quick-view').text()).toContain('1 producto');
   });
   it('shows the selected card details in the purchase panel', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
