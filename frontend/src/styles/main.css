@@ -636,3 +636,16 @@ h1 {
 .card-preview__signature strong { min-width: 38px; text-align: right; font-size: .9rem; }
 .card-preview__back > small { color: rgb(255 255 255 / 78%); font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; }
 @media (max-width: 560px) { .card-preview, .card-preview__inner, .card-preview__face { min-height: 170px; height: 170px; } .card-preview__face { padding: 18px; } .card-preview__magnetic-stripe { margin: 0 -18px; } }
+.purchase-quantity-backdrop { position: fixed; z-index: 32; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(14 24 38 / 52%); }
+.purchase-quantity-modal { width: min(100%, 440px); display: grid; gap: 20px; padding: 24px; border-radius: 8px; background: #ffffff; box-shadow: 0 28px 84px rgb(13 25 39 / 32%); }
+.purchase-quantity-modal header, .purchase-quantity-modal footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.purchase-quantity-modal h2 { margin: 3px 0 0; font-size: 1.28rem; }
+.purchase-quantity__product { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 16px; border: 1px solid #d8e4ef; border-radius: 7px; background: #f7fbff; }
+.purchase-quantity__product div { display: grid; gap: 4px; }
+.purchase-quantity__product span, .purchase-quantity__product small { color: #62758a; font-size: .8rem; }
+.purchase-quantity__product > strong { color: #102a43; white-space: nowrap; }
+.purchase-quantity__control { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #334e68; font-weight: 800; }
+.purchase-quantity__control .quantity-control { margin: 0; }
+.purchase-quantity__control .quantity-control strong { display: grid; min-width: 32px; place-items: center; font-size: .86rem; }
+.purchase-quantity-modal footer { justify-content: flex-end; }
+@media (max-width: 560px) { .purchase-quantity-backdrop { align-items: end; padding: 0; } .purchase-quantity-modal { width: 100%; border-radius: 8px 8px 0 0; } .purchase-quantity-modal footer { flex-direction: column-reverse; align-items: stretch; } .purchase-quantity-modal footer button { width: 100%; } }

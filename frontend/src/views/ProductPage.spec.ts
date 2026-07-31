@@ -40,8 +40,9 @@ const mountPage = () =>
             '<button v-if="isOpen" class="cart-checkout" @click="$emit(\'checkout\')">Pagar carrito</button>',
         },
         CheckoutModal: {
+          props: ['items'],
           template:
-            '<button class="confirm-payment" @click="$emit(\'confirm\', payment)">Confirmar</button>',
+            '<button class="confirm-payment" @click="$emit(\'confirm\', payment)">Confirmar</button><span class="checkout-quantity">{{ items[0].quantity }}</span>',
           data: () => ({ payment: { fullName: 'Ana' } }),
         },
         PaymentResultModal: {
@@ -67,6 +68,7 @@ describe('ProductPage', () => {
     await flushPromises();
     expect(wrapper.text()).toContain('Audifonos');
     await wrapper.get('.pay-button').trigger('click');
+    await wrapper.get('.purchase-quantity__continue').trigger('click');
     await flushPromises();
     expect(store.state).toMatchObject({ step: 'payment-data', productId: 'product-1' });
     expect(getAcceptanceDocuments).toHaveBeenCalledOnce();
@@ -109,6 +111,18 @@ describe('ProductPage', () => {
     );
     expect(store.state.cart).toEqual([]);
   });
+  it('lets a direct purchase choose its quantity before checkout', async () => {
+    getProducts.mockResolvedValue([product]);
+    getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get('.pay-button').trigger('click');
+    await wrapper.get('[aria-label="Aumentar cantidad de compra"]').trigger('click');
+    expect(wrapper.text()).toContain('$ 320.000');
+    await wrapper.get('.purchase-quantity__continue').trigger('click');
+    await flushPromises();
+    expect(wrapper.get('.checkout-quantity').text()).toBe('2');
+  });
   it('shows the selected card details in the purchase panel', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
     const wrapper = mountPage();
@@ -127,6 +141,7 @@ describe('ProductPage', () => {
     const wrapper = mountPage();
     await flushPromises();
     await wrapper.findAll('.product-card')[1].get('.pay-button').trigger('click');
+    await wrapper.get('.purchase-quantity__continue').trigger('click');
     await flushPromises();
     expect(store.state).toMatchObject({ step: 'payment-data', productId: 'product-2' });
   });
@@ -153,6 +168,7 @@ describe('ProductPage', () => {
     const wrapper = mountPage();
     await flushPromises();
     await wrapper.get('.pay-button').trigger('click');
+    await wrapper.get('.purchase-quantity__continue').trigger('click');
     await flushPromises();
     await wrapper.get('.confirm-payment').trigger('click');
     await flushPromises();
