@@ -27,6 +27,7 @@ describe('ProductPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     store.commit('reset');
+    store.commit('clearCart');
   });
 
   it('loads product data and opens checkout with acceptance documents', async () => {
@@ -41,6 +42,13 @@ describe('ProductPage', () => {
     expect(getAcceptanceDocuments).toHaveBeenCalledOnce();
   });
 
+  it('adds a catalog product to the persistent cart', async () => {
+    getProducts.mockResolvedValue([product]);
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get('.cart-add-button').trigger('click');
+    expect(store.state.cart).toEqual([{ ...product, quantity: 1 }]);
+  });
   it('shows the selected card details in the purchase panel', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
     const wrapper = mountPage();
