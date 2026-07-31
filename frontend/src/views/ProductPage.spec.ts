@@ -1,0 +1,64 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
+
+const { getFeaturedProduct, getAcceptanceDocuments, createCheckoutTransaction } = vi.hoisted(() => ({
+  getFeaturedProduct: vi.fn(), getAcceptanceDocuments: vi.fn(), createCheckoutTransaction: vi.fn(),
+}));
+vi.mock('../api/products.api', () => ({ getFeaturedProduct }));
+vi.mock('../api/checkout.api', () => ({ getAcceptanceDocuments, createCheckoutTransaction }));
+
+import ProductPage from './ProductPage.vue';
+import { store } from '../store';
+
+const product = { id: 'product-1', name: 'Audifonos', description: 'Descripcion', priceCents: 16000000, stock: 2, imageUrl: null };
+
+const mountPage = () => mount(ProductPage, {
+  global: {
+    stubs: {
+      CheckoutModal: { template: '<button class="confirm-payment" @click="$emit(\'confirm\', payment)">Confirmar</button>', data: () => ({ payment: { fullName: 'Ana' } }) },
+      PaymentResultModal: { template: '<button class="return-product" @click="$emit(\'return-to-product\')">Volver</button>' },
+    },
+  },
+});
+
+describe('ProductPage', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    store.commit('reset');
+  });
+
+  it('loads product data and opens checkout with acceptance documents', async () => {
+    getFeaturedProduct.mockResolvedValue(product);
+    getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });
+    const wrapper = mountPage();
+    await flushPromises();
+    expect(wrapper.text()).toContain('Audifonos');
+    await wrapper.get('.pay-button').trigger('click');
+    await flushPromises();
+    expect(store.state).toMatchObject({ step: 'payment-data', productId: 'product-1' });
+    expect(getAcceptanceDocuments).toHaveBeenCalledOnce();
+  });
+
+  it('shows a retry action when loading fails and reloads the product', async () => {
+    getFeaturedProduct.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(product);
+    const wrapper = mountPage();
+    await flushPromises();
+    expect(wrapper.text()).toContain('No fue posible cargar el producto.');
+    await wrapper.get('.secondary-button').trigger('click');
+    await flushPromises();
+    expect(wrapper.text()).toContain('Audifonos');
+  });
+
+  it('records payment results and returns to the product', async () => {
+    getFeaturedProduct.mockResolvedValue(product);
+    createCheckoutTransaction.mockResolvedValue({ reference: 'PAY-1', status: 'APPROVED', totalAmountCents: 17150000 });
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get('.confirm-payment').trigger('click');
+    await flushPromises();
+    expect(store.state).toMatchObject({ step: 'result', transactionReference: 'PAY-1' });
+    await wrapper.get('.return-product').trigger('click');
+    await flushPromises();
+    expect(store.state.step).toBe('product');
+  });
+});
