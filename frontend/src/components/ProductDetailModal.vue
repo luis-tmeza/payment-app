@@ -8,7 +8,7 @@
           <p class="eyebrow">Detalle del producto</p><h2 id="product-detail-title">{{ product.name }}</h2><p class="product-detail-description">{{ product.description }}</p>
           <p class="product-detail-stock" :class="{ 'stock--empty': product.stock === 0 }">{{ product.stock > 0 ? `${product.stock} unidades disponibles` : 'Producto agotado' }}</p><strong class="product-detail-price">{{ formatMoney(product.priceCents) }}</strong>
           <div class="product-detail-benefits" aria-label="Beneficios de compra"><span><Truck :size="17" aria-hidden="true" /> Envio rastreable</span><span><RotateCcw :size="17" aria-hidden="true" /> Cambios sencillos</span><span><ShieldCheck :size="17" aria-hidden="true" /> Pago seguro</span></div>
-          <div class="product-detail-actions"><button class="secondary-button" type="button" :disabled="product.stock === 0" @click="emit('add-to-cart')"><ShoppingCart :size="17" aria-hidden="true" /> Agregar</button><button class="pay-button product-detail-buy" type="button" :disabled="product.stock === 0" @click="emit('buy')">Comprar ahora <ArrowRight :size="18" aria-hidden="true" /></button></div>
+          <div class="product-detail-actions"><button class="cart-add-button product-detail-add" type="button" :disabled="product.stock === 0" @click="emit('add-to-cart')"><ShoppingCart :size="17" aria-hidden="true" /> Agregar</button><button class="pay-button product-detail-buy" type="button" :disabled="product.stock === 0" @click="emit('buy')">Comprar ahora <ArrowRight :size="18" aria-hidden="true" /></button></div>
         </div>
       </section>
     </div>

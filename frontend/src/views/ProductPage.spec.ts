@@ -80,6 +80,7 @@ describe('ProductPage', () => {
     await wrapper.get('.cart-add-button').trigger('click');
     expect(store.state.cart).toEqual([{ ...product, quantity: 1 }]);
     expect(wrapper.find('.cart-quick-view').text()).toContain('1 producto');
+    expect(wrapper.get('.cart-feedback').text()).toContain('Audifonos');
   });
   it('pays all cart lines in one checkout transaction', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
@@ -128,7 +129,7 @@ describe('ProductPage', () => {
     const wrapper = mountPage();
     await flushPromises();
     expect(wrapper.find('.product-detail-dialog').exists()).toBe(false);
-    await wrapper.findAll('.product-card')[1].get('.secondary-button').trigger('click');
+    await wrapper.findAll('.product-card')[1].get('.detail-button').trigger('click');
     await flushPromises();
     expect(wrapper.get('.product-detail-dialog').text()).toContain('Parlante');
   });

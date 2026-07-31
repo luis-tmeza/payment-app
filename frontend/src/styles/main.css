@@ -649,3 +649,20 @@ h1 {
 .purchase-quantity__control .quantity-control strong { display: grid; min-width: 32px; place-items: center; font-size: .86rem; }
 .purchase-quantity-modal footer { justify-content: flex-end; }
 @media (max-width: 560px) { .purchase-quantity-backdrop { align-items: end; padding: 0; } .purchase-quantity-modal { width: 100%; border-radius: 8px 8px 0 0; } .purchase-quantity-modal footer { flex-direction: column-reverse; align-items: stretch; } .purchase-quantity-modal footer button { width: 100%; } }
+.detail-button { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 6px; border: 1px solid #9fc7e9; border-radius: 6px; padding: 8px; background: #ffffff; color: #075aa8; font-size: .8rem; font-weight: 800; cursor: pointer; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 75%); }
+.detail-button:hover { border-color: #0b6bcb; background: #eaf5ff; color: #064d90; }
+.detail-button:focus-visible, .product-detail-add:focus-visible { outline: 3px solid #b5dcff; outline-offset: 2px; }
+.product-detail-add { min-height: 46px; font-size: .9rem; box-shadow: 0 4px 10px rgb(11 107 203 / 12%); }
+.product-detail-add:hover { box-shadow: 0 6px 14px rgb(11 107 203 / 18%); }
+.product-card__actions .detail-button { min-height: 40px; }
+@media (max-width: 760px) { .product-card__actions .detail-button { grid-column: 1 / -1; } }
+.cart-trigger.is-bumping { animation: cart-bump 520ms ease; }
+.cart-feedback { position: fixed; z-index: 45; right: 24px; bottom: 94px; display: inline-flex; align-items: center; gap: 10px; min-width: 230px; padding: 12px 14px; border: 1px solid #94d8c5; border-radius: 7px; background: #ffffff; color: #075a47; box-shadow: 0 12px 30px rgb(8 117 90 / 22%); }
+.cart-feedback > svg { flex: 0 0 auto; color: #08755a; }
+.cart-feedback span { display: grid; gap: 2px; }
+.cart-feedback strong { font-size: .86rem; }
+.cart-feedback small { max-width: 210px; overflow: hidden; color: #496076; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+.cart-feedback-enter-active, .cart-feedback-leave-active { transition: opacity 180ms ease, transform 180ms ease; }
+.cart-feedback-enter-from, .cart-feedback-leave-to { opacity: 0; transform: translateY(10px); }
+@keyframes cart-bump { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.16); } 70% { transform: scale(.94); } }
+@media (max-width: 760px) { .cart-feedback { right: 16px; bottom: 88px; } }
