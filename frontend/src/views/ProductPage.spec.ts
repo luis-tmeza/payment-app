@@ -40,6 +40,15 @@ describe('ProductPage', () => {
     expect(getAcceptanceDocuments).toHaveBeenCalledOnce();
   });
 
+  it('shows the selected card details in the purchase panel', async () => {
+    getProducts.mockResolvedValue([product, secondProduct]);
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.findAll('.product-card')[1].get('.secondary-button').trigger('click');
+    await flushPromises();
+    expect(wrapper.get('.selected-product').text()).toContain('Parlante');
+    expect(wrapper.get('.selected-product').text()).toMatch(/\$\s+90\.000/);
+  });
   it('opens checkout for the product chosen from a multi-product catalog', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
     getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });

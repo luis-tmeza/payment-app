@@ -26,7 +26,7 @@
       <section id="catalog" class="catalog-layout" aria-label="Catalogo de productos">
         <section class="product-grid" aria-label="Productos disponibles">
           <article v-for="item in products" :key="item.id" class="product-card" :class="{ 'product-card--selected': item.id === selectedProduct.id }">
-            <button type="button" class="product-card__select" :aria-label="`Ver detalle de ${item.name}`" @click="selectProduct(item)">
+            <button type="button" class="product-card__select" :aria-label="`Ver detalle de ${item.name}`" @click="viewProduct(item)">
               <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
               <div v-else class="image-placeholder" aria-hidden="true"></div>
             </button>
@@ -36,14 +36,14 @@
               <p>{{ item.description }}</p>
               <span class="product-card__price">{{ formatMoney(item.priceCents) }}</span>
               <div class="product-card__actions">
-                <button class="secondary-button" type="button" @click="selectProduct(item)">Ver detalle</button>
+                <button class="secondary-button" type="button" @click="viewProduct(item)">Ver detalle</button>
                 <button class="pay-button" type="button" :disabled="item.stock === 0" @click="buyProduct(item)">Comprar</button>
               </div>
             </div>
           </article>
         </section>
 
-        <aside class="selected-product" aria-label="Compra del producto seleccionado">
+        <aside ref="productDetailPanel" :key="selectedProduct.id" class="selected-product" tabindex="-1" aria-label="Compra del producto seleccionado" aria-live="polite">
           <div class="selected-product__media">
             <img v-if="selectedProduct.imageUrl" :src="selectedProduct.imageUrl" :alt="selectedProduct.name" />
           </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { ArrowRight, RotateCcw, ShieldCheck, Truck } from 'lucide-vue-next';
 import { createCheckoutTransaction, getAcceptanceDocuments, type CheckoutTransactionResponse } from '../api/checkout.api';
 import { getProducts } from '../api/products.api';
@@ -86,6 +86,7 @@ import type { AcceptanceDocuments } from '../types/acceptance-documents';
 
 const products = ref<Product[]>([]);
 const selectedProduct = ref<Product | null>(null);
+const productDetailPanel = ref<HTMLElement | null>(null);
 const isLoading = ref(true);
 const loadError = ref(false);
 const isProcessing = ref(false);
@@ -109,6 +110,13 @@ const loadProducts = async (): Promise<void> => {
 };
 
 const selectProduct = (product: Product): void => { selectedProduct.value = product; };
+const viewProduct = async (product: Product): Promise<void> => {
+  selectProduct(product);
+  await nextTick();
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 760px)').matches && typeof productDetailPanel.value?.scrollIntoView === 'function') {
+    productDetailPanel.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 const buyProduct = (product: Product): void => { selectProduct(product); startCheckout(); };
 
 const handlePayment = async (paymentData: CheckoutPaymentData): Promise<void> => {
