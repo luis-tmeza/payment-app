@@ -576,3 +576,13 @@ h1 {
 .cart-quick-view strong { font-size: .86rem; }
 .cart-quick-view small { font-size: .78rem; opacity: .9; }
 @media (max-width: 760px) { .cart-quick-view { right: 0; bottom: 0; width: 100%; min-height: 62px; border-radius: 0; padding-inline: 20px; } }
+
+/* Align catalog card actions across variable product copy. */
+@media (min-width: 761px) {
+  .product-card { display: flex; flex-direction: column; }
+  .product-card__body { flex: 1; display: flex; flex-direction: column; }
+  .product-card__body > strong { min-height: 42px; }
+  .product-card__body > p { min-height: 57px; }
+  .product-card__price { margin-top: auto; padding-top: 8px; }
+  .product-card__actions { margin-top: 14px; }
+}
