@@ -15,14 +15,15 @@
             <fieldset class="form-section payment-section">
               <legend><CreditCard :size="18" /> Informacion de pago</legend>
               <div class="card-preview" :class="`card-preview--${cardBrand || 'default'}`" aria-label="Vista previa de tarjeta">
-                <div class="card-preview__top"><span class="card-preview__chip" aria-hidden="true"></span><strong>{{ cardBrand || 'TARJETA' }}</strong></div>
-                <strong class="card-preview__number">{{ cardNumber || '•••• •••• •••• ••••' }}</strong>
-                <div class="card-preview__bottom"><span><small>Titular</small>{{ form.cardholderName || 'NOMBRE DEL TITULAR' }}</span><span><small>Vence</small>{{ form.expiration || 'MM/AA' }}</span></div>
+                <div class="card-preview__inner" :class="{ 'is-flipped': isCvvFocused }">
+                  <div class="card-preview__face card-preview__front"><div class="card-preview__top"><span class="card-preview__chip" aria-hidden="true"></span><strong>{{ cardBrand || 'TARJETA' }}</strong></div><strong class="card-preview__number">{{ cardNumber || '•••• •••• •••• ••••' }}</strong><div class="card-preview__bottom"><span><small>Titular</small>{{ form.cardholderName || 'NOMBRE DEL TITULAR' }}</span><span><small>Vence</small>{{ form.expiration || 'MM/AA' }}</span></div></div>
+                  <div class="card-preview__face card-preview__back"><span class="card-preview__magnetic-stripe" aria-hidden="true"></span><div class="card-preview__signature"><span>Firma autorizada</span><strong>{{ form.cvv || '•••' }}</strong></div><small>Codigo de seguridad</small></div>
+                </div>
               </div>
               <div class="form-grid form-grid--payment">
                 <label class="field field--full">Numero de tarjeta<span class="input-with-icon"><input :value="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000" required @input="formatCardNumber" /><span v-if="cardBrand" class="card-brand">{{ cardBrand }}</span></span></label>
                 <label class="field">Vencimiento<input v-model.trim="form.expiration" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/AA" required @input="formatExpiration" /></label>
-                <label class="field">CVV<input v-model.trim="form.cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" required /></label>
+                <label class="field">CVV<input v-model.trim="form.cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" required @focus="isCvvFocused = true" @blur="isCvvFocused = false" /></label>
                 <label class="field field--full">Nombre como aparece en la tarjeta<input v-model.trim="form.cardholderName" autocomplete="cc-name" required /></label>
               </div>
             </fieldset>
@@ -93,6 +94,7 @@ const emit = defineEmits<{ confirm: [data: CheckoutPaymentData] }>();
 const baseFeeCents = 250000;
 const deliveryFeeCents = 900000;
 const isSummary = ref(false);
+const isCvvFocused = ref(false);
 const formError = ref('');
 const form = reactive<CheckoutPaymentData>({
   cardNumber: '', expiration: '', cvv: '', cardholderName: '', fullName: '', email: '', phone: '',
@@ -127,6 +129,7 @@ const resetForm = (): void => {
     acceptedTerms: false, acceptedPersonalData: false,
   });
   isSummary.value = false;
+  isCvvFocused.value = false;
   formError.value = '';
 };
 watch(isOpen, (open) => { if (!open) resetForm(); });

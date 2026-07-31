@@ -24,6 +24,10 @@ describe('CheckoutModal', () => {
     await inputs[0].setValue('4242 4242 4242 4242');
     await inputs[1].setValue('1231');
     await inputs[2].setValue('123');
+    await inputs[2].trigger('focus');
+    expect(wrapper.get('.card-preview__inner').classes()).toContain('is-flipped');
+    await inputs[2].trigger('blur');
+    expect(wrapper.get('.card-preview__inner').classes()).not.toContain('is-flipped');
     await inputs[3].setValue('Ana Perez');
     await inputs[4].setValue('Ana Perez');
     await inputs[5].setValue('ana@example.com');
