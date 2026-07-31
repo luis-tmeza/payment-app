@@ -149,3 +149,22 @@ La ejecucion validada con `pnpm test:coverage` cumple el minimo solicitado de 80
 
 - Pago aprobado: transaccion `APPROVED`, entrega `ASSIGNED` e inventario disminuido.
 - Pago rechazado: transaccion `DECLINED`, entrega `CANCELLED` e inventario sin cambios.
+## Desarrollo con Docker
+
+Para trabajar sin publicar cambios, Docker Compose levanta PostgreSQL, NestJS y Vite con recarga automatica:
+
+```powershell
+docker compose up --build
+```
+
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:3000/api/health`
+- Swagger: `http://localhost:3000/docs`
+
+El primer inicio aplica migraciones al PostgreSQL local. Para cargar los productos de demostracion ejecuta:
+
+```powershell
+docker compose exec backend pnpm --dir backend prisma:seed
+```
+
+Deten el entorno con `docker compose down`. Agrega `-v` solo si deseas borrar tambien la base de datos local.

@@ -17,5 +17,41 @@ services:
       timeout: 5s
       retries: 20
 
+  backend:
+    image: node:20-alpine
+    working_dir: /workspace
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --dir backend prisma:generate && pnpm --dir backend prisma:migrate:deploy && pnpm --dir backend dev"
+    env_file:
+      - backend/.env
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/payment_app?schema=public
+      WEB_ORIGIN: http://localhost:5173
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - payment_app_node_modules:/workspace/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /workspace
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --dir frontend dev"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000/api
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/workspace
+      - payment_app_node_modules:/workspace/node_modules
+    depends_on:
+      - backend
+
 volumes:
   payment_app_postgres:
+  payment_app_node_modules:
