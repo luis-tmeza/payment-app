@@ -4,7 +4,7 @@ import { ReconcileCheckoutTransactionUseCase } from './reconcile-checkout-transa
 
 describe('ReconcileCheckoutTransactionUseCase', () => {
   const repository: jest.Mocked<CheckoutRepository> = {
-    findProduct: jest.fn(), createPending: jest.fn(), findByReference: jest.fn(), complete: jest.fn(),
+    findProducts: jest.fn(), createPending: jest.fn(), findByReference: jest.fn(), complete: jest.fn(),
   };
   const gateway: jest.Mocked<PaymentGateway> = {
     getAcceptanceDocuments: jest.fn(), charge: jest.fn(), getTransaction: jest.fn(),

@@ -5,7 +5,7 @@ import { store } from '../../store';
 
 const product = { id: 'product-1', name: 'Audifonos', description: 'Prueba', priceCents: 16000000, stock: 2, imageUrl: null };
 const mountModal = () => mount(CheckoutModal, {
-  props: { product, acceptanceDocuments: { termsUrl: 'https://terms', personalDataUrl: 'https://data' } },
+  props: { product, items: [{ ...product, quantity: 1 }], acceptanceDocuments: { termsUrl: 'https://terms', personalDataUrl: 'https://data' } },
   global: { stubs: { teleport: true } },
 });
 

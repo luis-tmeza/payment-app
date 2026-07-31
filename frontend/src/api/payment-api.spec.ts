@@ -17,7 +17,7 @@ describe('payment API', () => {
 
   it('maps payment data to the checkout contract', async () => {
     post.mockResolvedValue({ data: { reference: 'PAY-1', status: 'APPROVED', totalAmountCents: 100 } });
-    await expect(createCheckoutTransaction('p1', payment)).resolves.toMatchObject({ reference: 'PAY-1' });
-    expect(post).toHaveBeenCalledWith('/checkout/transactions', expect.objectContaining({ productId: 'p1', quantity: 1, cardCvv: '123', notes: undefined }));
+    await expect(createCheckoutTransaction([{ id: 'p1', name: 'Producto', description: 'Prueba', priceCents: 100, stock: 2, imageUrl: null, quantity: 1 }], payment)).resolves.toMatchObject({ reference: 'PAY-1' });
+    expect(post).toHaveBeenCalledWith('/checkout/transactions', expect.objectContaining({ items: [{ productId: 'p1', quantity: 1 }], cardCvv: '123', notes: undefined }));
   });
 });

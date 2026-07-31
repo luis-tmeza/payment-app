@@ -585,3 +585,4 @@ h1 {
   .product-card__price { margin-top: auto; padding-top: 8px; }
   .product-card__actions { margin-top: 14px; }
 }
+.cart-checkout { width: 100%; }

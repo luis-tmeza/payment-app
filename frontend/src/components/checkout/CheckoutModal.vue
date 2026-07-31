@@ -14,7 +14,7 @@
           <div class="checkout-stepper" aria-label="Progreso del checkout"><div class="is-active"><span>1</span> Datos</div><div><span>2</span> Confirmacion</div><div><span>3</span> Resultado</div></div>
           <aside class="checkout-order-context" aria-label="Resumen de la compra">
             <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" />
-            <div><span>Estas comprando</span><strong>{{ product.name }}</strong><small>{{ formatMoney(product.priceCents) }}</small></div>
+            <div><span>Estas comprando</span><strong>{{ items.length > 1 ? `${items.length} productos` : product.name }}</strong><small>{{ formatMoney(productSubtotalCents) }}</small></div>
           </aside>
           <fieldset class="form-section">
             <legend><CreditCard :size="18" /> Tarjeta</legend>
@@ -70,7 +70,7 @@
             <div><span>Producto</span><strong>{{ product.name }}</strong><small>Tarjeta {{ cardBrand || 'credito' }} terminada en {{ lastFour }}</small></div>
           </div>
           <dl class="summary-lines">
-            <div><dt>Producto</dt><dd>{{ formatMoney(product.priceCents) }}</dd></div>
+            <div><dt>Productos ({{ items.length }})</dt><dd>{{ formatMoney(productSubtotalCents) }}</dd></div>
             <div><dt>Tarifa base</dt><dd>{{ formatMoney(baseFeeCents) }}</dd></div>
             <div><dt>Envio</dt><dd>{{ formatMoney(deliveryFeeCents) }}</dd></div>
             <div class="summary-total"><dt>Total</dt><dd>{{ formatMoney(totalCents) }}</dd></div>
@@ -92,9 +92,10 @@ import { CreditCard, MapPin, X } from 'lucide-vue-next';
 import { store } from '../../store';
 import { cardDigits, detectCardBrand, formatCardNumber as displayCardNumber, formatExpiration as displayExpiration, isValidCardNumber, isValidExpiration } from '../../utils/card';
 import type { Product } from '../../types/product';
+import type { CartItem } from '../../types/cart';
 import type { AcceptanceDocuments } from '../../types/acceptance-documents';
 
-const props = defineProps<{ product: Product; isProcessing?: boolean; paymentError?: string; acceptanceDocuments?: AcceptanceDocuments | null }>();
+const props = defineProps<{ product: Product; items: CartItem[]; isProcessing?: boolean; paymentError?: string; acceptanceDocuments?: AcceptanceDocuments | null }>();
 
 export type CheckoutPaymentData = {
   cardNumber: string;
@@ -130,7 +131,8 @@ const digits = computed(() => cardDigits(form.cardNumber));
 const lastFour = computed(() => digits.value.slice(-4));
 const cardNumber = computed(() => displayCardNumber(form.cardNumber));
 const cardBrand = computed(() => detectCardBrand(form.cardNumber));
-const totalCents = computed(() => props.product.priceCents + baseFeeCents + deliveryFeeCents);
+const productSubtotalCents = computed(() => props.items.reduce((total, item) => total + item.priceCents * item.quantity, 0));
+const totalCents = computed(() => productSubtotalCents.value + baseFeeCents + deliveryFeeCents);
 
 const formatCardNumber = (event: Event): void => { form.cardNumber = cardDigits((event.target as HTMLInputElement).value); };
 const formatExpiration = (event: Event): void => { form.expiration = displayExpiration((event.target as HTMLInputElement).value); };
