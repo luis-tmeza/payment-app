@@ -65,6 +65,14 @@ export class WompiPaymentGateway implements PaymentGateway {
       : payment;
   }
 
+  async getTransaction(transactionId: string): Promise<PaymentResponse> {
+    this.ensurePublicKey();
+    const response = await axios.get(`${this.baseUrl}/transactions/${transactionId}`, {
+      headers: { Authorization: `Bearer ${this.publicKey}` },
+      timeout: 10_000,
+    });
+    return this.toPaymentResponse(response.data?.data as Record<string, unknown> | undefined);
+  }
   private async pollTransaction(transactionId: string, lastResponse: PaymentResponse): Promise<PaymentResponse> {
     let current = lastResponse;
     for (let attempt = 0; attempt < 5; attempt += 1) {

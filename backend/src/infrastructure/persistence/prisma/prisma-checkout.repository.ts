@@ -46,6 +46,18 @@ export class PrismaCheckoutRepository implements CheckoutRepository {
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
+  async findByReference(reference: string) {
+    const transaction = await this.prisma.transaction.findUnique({ where: { reference } });
+    if (!transaction) return null;
+    return {
+      transactionId: transaction.id,
+      reference: transaction.reference,
+      status: transaction.status,
+      wompiTransactionId: transaction.wompiTransactionId ?? undefined,
+      statusMessage: transaction.wompiStatusMessage ?? undefined,
+      totalAmountCents: transaction.totalAmountCents,
+    };
+  }
   async complete(input: CompleteCheckout): Promise<'COMPLETED' | 'OUT_OF_STOCK'> {
     return this.prisma.$transaction<'COMPLETED' | 'OUT_OF_STOCK'>(async (tx) => {
       const transaction = await tx.transaction.findUniqueOrThrow({ where: { id: input.transactionId } });

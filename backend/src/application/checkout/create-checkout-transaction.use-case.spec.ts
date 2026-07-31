@@ -7,11 +7,13 @@ describe('CreateCheckoutTransactionUseCase', () => {
   const repository: jest.Mocked<CheckoutRepository> = {
     findProduct: jest.fn(),
     createPending: jest.fn(),
+    findByReference: jest.fn(),
     complete: jest.fn(),
   };
   const gateway: jest.Mocked<PaymentGateway> = {
     getAcceptanceDocuments: jest.fn(),
     charge: jest.fn(),
+    getTransaction: jest.fn(),
   };
   const config = { get: jest.fn((key: string) => (key === 'BASE_FEE_CENTS' ? '250000' : '900000')) } as unknown as ConfigService;
   const useCase = new CreateCheckoutTransactionUseCase(repository, gateway, config);

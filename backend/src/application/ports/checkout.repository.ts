@@ -29,8 +29,18 @@ export type CompleteCheckout = {
   gatewayResponse?: Record<string, unknown>;
 };
 
+export type StoredCheckout = {
+  transactionId: string;
+  reference: string;
+  status: CompleteCheckout['status'];
+  wompiTransactionId?: string;
+  statusMessage?: string;
+  totalAmountCents: number;
+};
+
 export interface CheckoutRepository {
   findProduct(productId: string): Promise<Product | null>;
   createPending(input: CreatePendingCheckout): Promise<PendingCheckout>;
+  findByReference(reference: string): Promise<StoredCheckout | null>;
   complete(input: CompleteCheckout): Promise<'COMPLETED' | 'OUT_OF_STOCK'>;
 }

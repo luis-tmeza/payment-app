@@ -6,7 +6,7 @@ Aplicacion de checkout para una prueba tecnica Full Stack. Implementa un product
 
 - Frontend: Vue 3, TypeScript, Vite, Vuex 4, Vue Router y Vitest.
 - Backend: NestJS, TypeScript, Prisma, PostgreSQL, Swagger y Jest.
-- Integracion: Wompi Sandbox por API, tokenizacion de tarjeta, documentos de aceptacion y polling de estado.
+- Integracion: Wompi Sandbox por API, tokenizacion de tarjeta, documentos de aceptacion, polling y webhook firmado.
 - Arquitectura: hexagonal en backend mediante dominio, casos de uso, puertos y adaptadores.
 
 ## Estructura
@@ -26,8 +26,8 @@ payment-app/
 3. Detecta Visa/Mastercard y valida numero, fecha, CVV y formulario.
 4. Consulta los documentos de aceptacion actuales de Wompi y exige ambos consentimientos.
 5. Crea una transaccion interna `PENDING`, tokeniza la tarjeta y crea el pago en Wompi.
-6. Consulta el estado final; si aprueba, asigna la entrega y actualiza el inventario.
-7. Muestra resultado final y vuelve a cargar el producto.
+6. Reserva inventario de forma atomica, consulta el estado final y, si aprueba, asigna la entrega y confirma el descuento.
+7. Si queda pendiente, la consulta por referencia y el webhook firmado de Wompi lo reconcilian sin cobrar de nuevo.
 
 No se persisten PAN ni CVV. Solo se guarda franquicia y ultimos cuatro digitos de la tarjeta.
 
@@ -96,14 +96,16 @@ La coleccion esta disponible en [docs/postman/payment-app.postman_collection.jso
 | GET | `/api/health` | Estado del servicio |
 | GET | `/api/products/featured` | Producto para el checkout |
 | GET | `/api/checkout/acceptance-documents` | Enlaces actuales de consentimiento Wompi |
-| POST | `/api/checkout/transactions` | Crea y procesa una transaccion |
+| POST | /api/checkout/transactions | Crea, reserva inventario y procesa una transaccion |
+| GET | /api/checkout/transactions/:reference | Reconsulta una transaccion pendiente en Wompi |
+| POST | /api/checkout/wompi/events | Recibe y valida eventos firmados de Wompi |
 
 ## Modelo de datos
 
 - `Product`: producto, precio e inventario.
 - `Customer`: identificacion y datos de contacto del comprador.
 - `Delivery`: direccion y estado de entrega.
-- `Transaction`: referencia unica, montos, estado local/Wompi y respuesta de pasarela sin datos sensibles.
+- `Transaction`: referencia unica, montos, estado local/Wompi y respuesta de pasarela sin datos sensibles.`r`n- `Product.reservedStock`: reserva temporal de inventario que se confirma al aprobar o se libera al rechazar/error.
 
 La migracion inicial esta en `backend/prisma/migrations`. El seed crea el producto de demostracion.
 
@@ -130,7 +132,7 @@ El despliegue objetivo separa frontend estatico, API NestJS y PostgreSQL adminis
 2. Ejecuta `pnpm --filter @payment-app/backend prisma:migrate:deploy`.
 3. Ejecuta `pnpm --filter @payment-app/backend prisma:seed` una sola vez.
 4. Define `WEB_ORIGIN` con el dominio publico del frontend.
-5. Configura una URL de eventos de Wompi para conciliacion asincrona.
+5. Configura `https://<tu-api>/api/checkout/wompi/events` como URL de eventos de Wompi para conciliacion asincrona; el endpoint valida `X-Event-Checksum` con `WOMPI_EVENTS_SECRET`.
 
 GitHub Actions ejecuta pruebas y builds para `develop` y `main` en `.github/workflows/ci.yml`.
 

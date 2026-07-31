@@ -23,4 +23,5 @@ export type PaymentResponse = {
 export interface PaymentGateway {
   getAcceptanceDocuments(): Promise<AcceptanceDocuments>;
   charge(input: PaymentRequest): Promise<PaymentResponse>;
+  getTransaction(transactionId: string): Promise<PaymentResponse>;
 }
