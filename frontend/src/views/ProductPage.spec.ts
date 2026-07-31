@@ -105,6 +105,7 @@ describe('ProductPage', () => {
         { ...secondProduct, quantity: 1 },
       ],
       { fullName: 'Ana' },
+      expect.any(String),
     );
     expect(store.state.cart).toEqual([]);
   });

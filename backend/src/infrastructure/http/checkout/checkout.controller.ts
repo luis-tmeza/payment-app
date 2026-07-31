@@ -28,6 +28,7 @@ export class CheckoutController {
     @Req() request: Request,
   ): Promise<CheckoutTransactionResponse> {
     const result = await this.createCheckoutTransaction.execute({
+      checkoutKey: body.checkoutKey,
       items: body.items,
       customer: {
         fullName: body.fullName,
