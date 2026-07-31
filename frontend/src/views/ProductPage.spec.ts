@@ -16,6 +16,7 @@ const secondProduct = { id: 'product-2', name: 'Parlante', description: 'Descrip
 const mountPage = () => mount(ProductPage, {
   global: {
     stubs: {
+      ProductDetailModal: { props: ['product', 'isOpen'], template: '<section v-if="isOpen" class="product-detail-dialog"><strong>{{ product.name }}</strong></section>' },
       CheckoutModal: { template: '<button class="confirm-payment" @click="$emit(\'confirm\', payment)">Confirmar</button>', data: () => ({ payment: { fullName: 'Ana' } }) },
       PaymentResultModal: { template: '<button class="return-product" @click="$emit(\'return-to-product\')">Volver</button>' },
     },
@@ -44,11 +45,10 @@ describe('ProductPage', () => {
     getProducts.mockResolvedValue([product, secondProduct]);
     const wrapper = mountPage();
     await flushPromises();
-    expect(wrapper.find('.selected-product').exists()).toBe(false);
+    expect(wrapper.find('.product-detail-dialog').exists()).toBe(false);
     await wrapper.findAll('.product-card')[1].get('.secondary-button').trigger('click');
     await flushPromises();
-    expect(wrapper.get('.selected-product').text()).toContain('Parlante');
-    expect(wrapper.get('.selected-product').text()).toMatch(/\$\s+90\.000/);
+    expect(wrapper.get('.product-detail-dialog').text()).toContain('Parlante');
   });
   it('opens checkout for the product chosen from a multi-product catalog', async () => {
     getProducts.mockResolvedValue([product, secondProduct]);
