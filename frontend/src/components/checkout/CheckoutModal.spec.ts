@@ -34,12 +34,13 @@ describe('CheckoutModal', () => {
     await inputs[10].setValue('Cundinamarca');
     await inputs[11].setValue(true);
     await inputs[12].setValue(true);
+    expect(wrapper.get('.card-preview').text()).toContain('4242 4242 4242 4242');
     await wrapper.get('form').trigger('submit');
 
-    expect(wrapper.text()).toContain('Confirma tu compra');
+    expect(wrapper.text()).toContain('Revisa antes de pagar');
     expect(wrapper.text()).toContain('Visa terminada en 4242');
     await wrapper.get('.secondary-button').trigger('click');
-    expect(wrapper.text()).toContain('Datos de pago y entrega');
+    expect(wrapper.text()).toContain('Completa tu pago');
     await wrapper.get('form').trigger('submit');
     await wrapper.get('.summary-actions .pay-button').trigger('click');
     expect(wrapper.emitted('confirm')?.[0][0]).toMatchObject({ cardNumber: '4242424242424242', acceptedTerms: true, acceptedPersonalData: true });

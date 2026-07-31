@@ -586,3 +586,39 @@ h1 {
   .product-card__actions { margin-top: 14px; }
 }
 .cart-checkout { width: 100%; }
+
+/* Structured checkout payment form. */
+.checkout-modal { width: min(100%, 980px); }
+.checkout-form--structured { gap: 20px; }
+.checkout-order-context { align-items: center; }
+.checkout-order-total { margin-left: auto; color: #082f49; font-size: 1rem; white-space: nowrap; }
+.checkout-form-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 20px; align-items: start; }
+.payment-section, .delivery-section { min-height: 100%; padding: 18px; border: 1px solid #d8e4ef; border-radius: 8px; background: #fbfdff; }
+.payment-section { background: #f7fbff; }
+.delivery-section { background: #ffffff; }
+.form-section legend { margin-bottom: 16px; color: #102a43; }
+.card-preview { display: grid; min-height: 190px; gap: 22px; padding: 20px; border-radius: 8px; background: #0f766e; color: #ffffff; box-shadow: 0 12px 24px rgb(15 118 110 / 23%); }
+.card-preview--VISA { background: #155e75; box-shadow: 0 12px 24px rgb(21 94 117 / 23%); }
+.card-preview--MASTERCARD { background: #9a3412; box-shadow: 0 12px 24px rgb(154 52 18 / 23%); }
+.card-preview__top, .card-preview__bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.card-preview__top strong { font-size: .82rem; letter-spacing: .06em; }
+.card-preview__chip { width: 38px; height: 29px; border-radius: 5px; background: #f7d488; }
+.card-preview__number { align-self: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.08rem; letter-spacing: .08em; }
+.card-preview__bottom { align-items: end; font-size: .72rem; font-weight: 800; letter-spacing: .04em; }
+.card-preview__bottom small { display: block; margin-bottom: 4px; opacity: .76; font-size: .63rem; font-weight: 700; text-transform: uppercase; }
+.form-grid--payment { margin-top: 16px; }
+.checkout-consents { display: grid; gap: 10px; padding: 14px 16px; border: 1px solid #dce7f0; border-radius: 8px; background: #ffffff; }
+.checkout-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.checkout-form-footer .payment-assurance { flex: 1; padding: 0; border: 0; background: transparent; }
+.checkout-submit { justify-self: auto; white-space: nowrap; }
+@media (max-width: 760px) {
+  .checkout-form-layout { grid-template-columns: 1fr; }
+  .payment-section, .delivery-section { padding: 16px; }
+  .checkout-order-total { display: none; }
+}
+@media (max-width: 560px) {
+  .card-preview { min-height: 170px; padding: 18px; }
+  .card-preview__number { font-size: .92rem; }
+  .checkout-form-footer { align-items: stretch; flex-direction: column; }
+  .checkout-submit { width: 100%; }
+}
