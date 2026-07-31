@@ -8,3 +8,6 @@ coverage
 *.log
 backend/prisma/*.db
 *.tsbuildinfo
+
+frontend/dist/
+backend/dist/
