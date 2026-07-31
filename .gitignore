@@ -11,3 +11,5 @@ backend/prisma/*.db
 
 frontend/dist/
 backend/dist/
+
+frontend/.vite/
