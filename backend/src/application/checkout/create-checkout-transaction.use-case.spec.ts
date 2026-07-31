@@ -52,4 +52,17 @@ describe('CreateCheckoutTransactionUseCase', () => {
     await expect(useCase.execute(command)).resolves.toEqual({ ok: false, error: 'OUT_OF_STOCK' });
     expect(gateway.charge).not.toHaveBeenCalled();
     expect(repository.complete).not.toHaveBeenCalled();
+  });
+  it('returns not found when the product does not exist', async () => {
+    repository.findProduct.mockResolvedValue(null);
+    await expect(useCase.execute(command)).resolves.toEqual({ ok: false, error: 'PRODUCT_NOT_FOUND' });
+  });
+
+  it('releases the reservation and returns a gateway error when charging fails', async () => {
+    repository.findProduct.mockResolvedValue({ id: 'product-1', name: 'Headphones', description: 'Test', priceCents: 100000, stock: 2, imageUrl: null });
+    repository.createPending.mockResolvedValue({ transactionId: 'transaction-1', reference: 'PAY-1', productId: 'product-1', productAmountCents: 100000, totalAmountCents: 1250000 });
+    gateway.charge.mockRejectedValue(new Error('gateway'));
+    repository.complete.mockResolvedValue('COMPLETED');
+    await expect(useCase.execute(command)).resolves.toEqual({ ok: false, error: 'PAYMENT_GATEWAY_ERROR' });
+    expect(repository.complete).toHaveBeenCalledWith(expect.objectContaining({ status: 'ERROR' }));
   });});

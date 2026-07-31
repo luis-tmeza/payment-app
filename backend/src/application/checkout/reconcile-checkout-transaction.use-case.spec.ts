@@ -37,4 +37,16 @@ describe('ReconcileCheckoutTransactionUseCase', () => {
       .resolves.toEqual({ error: 'TRANSACTION_MISMATCH' });
     expect(repository.complete).not.toHaveBeenCalled();
   });
-});
+
+  it('reports missing and not-ready transactions without calling Wompi', async () => {
+    repository.findByReference.mockResolvedValueOnce(null).mockResolvedValueOnce({ ...pending, wompiTransactionId: undefined });
+    await expect(useCase.refresh('missing')).resolves.toEqual({ error: 'TRANSACTION_NOT_FOUND' });
+    await expect(useCase.refresh('PAY-1')).resolves.toEqual({ error: 'TRANSACTION_NOT_READY' });
+    expect(gateway.getTransaction).not.toHaveBeenCalled();
+  });
+
+  it('returns a gateway error when refresh fails', async () => {
+    repository.findByReference.mockResolvedValue(pending);
+    gateway.getTransaction.mockRejectedValue(new Error('network'));
+    await expect(useCase.refresh('PAY-1')).resolves.toEqual({ error: 'PAYMENT_GATEWAY_ERROR' });
+  });});
