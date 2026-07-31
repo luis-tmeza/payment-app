@@ -40,7 +40,11 @@ export const store = createStore<CheckoutState>({
       const item = state.cart.find((cartItem) => cartItem.id === productId);
       if (item && item.quantity < item.stock) item.quantity += 1;
     },
-    decreaseCartItem(state, productId: string) {
+    setCartItemQuantity(state, payload: { productId: string; quantity: number }) {
+      const item = state.cart.find((cartItem) => cartItem.id === payload.productId);
+      if (!item || !Number.isInteger(payload.quantity) || payload.quantity < 1 || payload.quantity > item.stock) return;
+      item.quantity = payload.quantity;
+    },        decreaseCartItem(state, productId: string) {
       const item = state.cart.find((cartItem) => cartItem.id === productId);
       if (!item) return;
       if (item.quantity > 1) item.quantity -= 1;

@@ -29,6 +29,8 @@ describe('checkout store', () => {
     store.commit('addToCart', product);
     store.commit('addToCart', product);
     store.commit('increaseCartItem', product.id);
+    store.commit('setCartItemQuantity', { productId: product.id, quantity: 1.5 });
+    store.commit('setCartItemQuantity', { productId: product.id, quantity: 3 });
     expect(store.state.cart).toEqual([{ ...product, quantity: 2 }]);
     store.commit('decreaseCartItem', product.id);
     expect(store.state.cart[0].quantity).toBe(1);

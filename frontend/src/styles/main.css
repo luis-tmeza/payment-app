@@ -666,3 +666,6 @@ h1 {
 .cart-feedback-enter-from, .cart-feedback-leave-to { opacity: 0; transform: translateY(10px); }
 @keyframes cart-bump { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.16); } 70% { transform: scale(.94); } }
 @media (max-width: 760px) { .cart-feedback { right: 16px; bottom: 88px; } }
+.quantity-control input { width: 32px; height: 28px; border: 0; border-inline: 1px solid #d8e2ec; padding: 0 2px; background: #ffffff; color: #243b53; font-size: .82rem; font-weight: 800; text-align: center; }
+.quantity-control input:focus { outline: 2px solid #b5dcff; outline-offset: -2px; }
+.purchase-quantity__control .quantity-control input { min-width: 42px; width: 42px; }
