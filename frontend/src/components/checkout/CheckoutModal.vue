@@ -11,6 +11,7 @@
         </header>
 
         <form v-if="!isSummary" class="checkout-form" @submit.prevent="continueToSummary">
+          <div class="checkout-stepper" aria-label="Progreso del checkout"><div class="is-active"><span>1</span> Datos</div><div><span>2</span> Confirmacion</div><div><span>3</span> Resultado</div></div>
           <fieldset class="form-section">
             <legend><CreditCard :size="18" /> Tarjeta</legend>
             <div class="form-grid">
@@ -55,9 +56,11 @@
           </div>
           <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
           <button class="pay-button checkout-submit" type="submit">Continuar al resumen</button>
+          <p class="payment-assurance">Tu tarjeta se tokeniza de forma segura. No almacenamos numero completo ni CVV.</p>
         </form>
 
         <div v-else class="checkout-summary">
+          <div class="checkout-stepper" aria-label="Progreso del checkout"><div><span>1</span> Datos</div><div class="is-active"><span>2</span> Confirmacion</div><div><span>3</span> Resultado</div></div>
           <div class="summary-product">
             <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" />
             <div><span>Producto</span><strong>{{ product.name }}</strong><small>Tarjeta {{ cardBrand || 'credito' }} terminada en {{ lastFour }}</small></div>

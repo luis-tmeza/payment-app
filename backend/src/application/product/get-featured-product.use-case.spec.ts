@@ -4,6 +4,7 @@ import { GetFeaturedProductUseCase } from './get-featured-product.use-case';
 describe('GetFeaturedProductUseCase', () => {
   const repository: jest.Mocked<ProductRepository> = {
     findFeatured: jest.fn(),
+    findAll: jest.fn(),
     reserveStock: jest.fn(),
   };
   const useCase = new GetFeaturedProductUseCase(repository);
