@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  ERROR
+}
+
+enum DeliveryStatus {
+  PENDING
+  ASSIGNED
+  CANCELLED
+}
+
+model Product {
+  id           String        @id @default(uuid())
+  name         String
+  description  String
+  priceCents   Int
+  stock        Int
+  reservedStock Int       @default(0)
+  imageUrl     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Customer {
+  id           String        @id @default(uuid())
+  fullName     String
+  email        String
+  phone        String
+  documentType String
+  document     String
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+  deliveries   Delivery[]
+}
+
+model Delivery {
+  id          String         @id @default(uuid())
+  customerId  String
+  addressLine String
+  city        String
+  region      String
+  postalCode  String?
+  notes       String?
+  status      DeliveryStatus @default(PENDING)
+  assignedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  transaction Transaction?
+  customer    Customer       @relation(fields: [customerId], references: [id])
+}
+
+model Transaction {
+  id                 String            @id @default(uuid())
+  reference          String            @unique
+  productId          String
+  customerId         String
+  deliveryId         String            @unique
+  status             TransactionStatus @default(PENDING)
+  quantity           Int
+  productAmountCents Int
+  baseFeeCents       Int
+  deliveryFeeCents   Int
+  totalAmountCents   Int
+  currency           String            @default("COP")
+  cardBrand          String?
+  cardLastFour       String?
+  wompiTransactionId String?
+  wompiStatus        String?
+  wompiStatusMessage String?
+  gatewayResponse    Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  product            Product           @relation(fields: [productId], references: [id])
+  customer           Customer          @relation(fields: [customerId], references: [id])
+  delivery           Delivery          @relation(fields: [deliveryId], references: [id])
+}

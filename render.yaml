@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: payment-api
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --dir backend prisma:generate && pnpm --dir backend build
+    startCommand: pnpm --dir backend prisma:migrate:deploy && pnpm --dir backend start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.19.0
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: WOMPI_BASE_URL
+        sync: false
+      - key: WOMPI_PUBLIC_KEY
+        sync: false
+      - key: WOMPI_PRIVATE_KEY
+        sync: false
+      - key: WOMPI_EVENTS_SECRET
+        sync: false
+      - key: WOMPI_INTEGRITY_SECRET
+        sync: false
+      - key: BASE_FEE_CENTS
+        value: "250000"
+      - key: DELIVERY_FEE_CENTS
+        value: "900000"
