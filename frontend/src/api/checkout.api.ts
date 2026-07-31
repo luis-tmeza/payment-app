@@ -12,7 +12,7 @@ export const createCheckoutTransaction = async (items: CartItem[], payment: Chec
     addressLine: payment.addressLine, city: payment.city, region: payment.region, notes: payment.notes || undefined,
     cardNumber: payment.cardNumber, cardExpiration: payment.expiration, cardCvv: payment.cvv, cardholderName: payment.cardholderName,
     acceptedTerms: payment.acceptedTerms, acceptedPersonalData: payment.acceptedPersonalData,
-  });
+  }, { timeout: 30_000 });
   return data;
 };
 export const getAcceptanceDocuments = async (): Promise<AcceptanceDocuments> => { const { data } = await http.get<AcceptanceDocuments>('/checkout/acceptance-documents'); return data; };
