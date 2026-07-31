@@ -20,45 +20,51 @@
     <template v-else-if="products.length && selectedProduct">
       <section class="catalog-toolbar" aria-label="Informacion del catalogo">
         <p><strong>{{ products.length }} productos</strong> disponibles para envio nacional</p>
-        <span>Selecciona uno para ver el detalle</span>
+        <span>Elige un producto o compra directamente desde su tarjeta</span>
       </section>
 
-      <section id="catalog" class="product-grid" aria-label="Catalogo de productos">
-        <article v-for="item in products" :key="item.id" class="product-card" :class="{ 'product-card--selected': item.id === selectedProduct.id }">
-          <button type="button" class="product-card__select" @click="selectProduct(item)">
-            <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
-            <div v-else class="image-placeholder" aria-hidden="true"></div>
+      <section id="catalog" class="catalog-layout" aria-label="Catalogo de productos">
+        <section class="product-grid" aria-label="Productos disponibles">
+          <article v-for="item in products" :key="item.id" class="product-card" :class="{ 'product-card--selected': item.id === selectedProduct.id }">
+            <button type="button" class="product-card__select" :aria-label="`Ver detalle de ${item.name}`" @click="selectProduct(item)">
+              <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
+              <div v-else class="image-placeholder" aria-hidden="true"></div>
+            </button>
             <div class="product-card__body">
               <div class="product-card__meta"><span>{{ item.stock > 0 ? `${item.stock} disponibles` : 'Agotado' }}</span><span v-if="item.id === selectedProduct.id">Seleccionado</span></div>
               <strong>{{ item.name }}</strong>
               <p>{{ item.description }}</p>
               <span class="product-card__price">{{ formatMoney(item.priceCents) }}</span>
+              <div class="product-card__actions">
+                <button class="secondary-button" type="button" @click="selectProduct(item)">Ver detalle</button>
+                <button class="pay-button" type="button" :disabled="item.stock === 0" @click="buyProduct(item)">Comprar</button>
+              </div>
             </div>
-          </button>
-        </article>
-      </section>
+          </article>
+        </section>
 
-      <section class="selected-product" aria-label="Producto seleccionado">
-        <div class="selected-product__media">
-          <img v-if="selectedProduct.imageUrl" :src="selectedProduct.imageUrl" :alt="selectedProduct.name" />
-        </div>
-        <div class="selected-product__content">
-          <p class="eyebrow">Producto seleccionado</p>
-          <h2>{{ selectedProduct.name }}</h2>
-          <p>{{ selectedProduct.description }}</p>
-          <div class="selected-product__details">
-            <strong>{{ formatMoney(selectedProduct.priceCents) }}</strong>
-            <span :class="{ 'stock--empty': selectedProduct.stock === 0 }">{{ selectedProduct.stock > 0 ? `${selectedProduct.stock} unidades listas para envio` : 'Producto agotado' }}</span>
+        <aside class="selected-product" aria-label="Compra del producto seleccionado">
+          <div class="selected-product__media">
+            <img v-if="selectedProduct.imageUrl" :src="selectedProduct.imageUrl" :alt="selectedProduct.name" />
           </div>
-          <div class="selected-product__benefits" aria-label="Beneficios de compra">
-            <span><Truck :size="17" aria-hidden="true" /> Envio rastreable</span>
-            <span><RotateCcw :size="17" aria-hidden="true" /> Cambios sencillos</span>
-            <span><ShieldCheck :size="17" aria-hidden="true" /> Pago seguro</span>
+          <div class="selected-product__content">
+            <p class="eyebrow">Listo para comprar</p>
+            <h2>{{ selectedProduct.name }}</h2>
+            <p>{{ selectedProduct.description }}</p>
+            <div class="selected-product__details">
+              <strong>{{ formatMoney(selectedProduct.priceCents) }}</strong>
+              <span :class="{ 'stock--empty': selectedProduct.stock === 0 }">{{ selectedProduct.stock > 0 ? `${selectedProduct.stock} unidades listas para envio` : 'Producto agotado' }}</span>
+            </div>
+            <div class="selected-product__benefits" aria-label="Beneficios de compra">
+              <span><Truck :size="17" aria-hidden="true" /> Envio rastreable</span>
+              <span><RotateCcw :size="17" aria-hidden="true" /> Cambios sencillos</span>
+              <span><ShieldCheck :size="17" aria-hidden="true" /> Pago seguro</span>
+            </div>
+            <button class="pay-button selected-product__pay" type="button" :disabled="selectedProduct.stock === 0" @click="startCheckout">
+              Comprar {{ formatMoney(selectedProduct.priceCents) }} <ArrowRight :size="18" aria-hidden="true" />
+            </button>
           </div>
-          <button class="pay-button" type="button" :disabled="selectedProduct.stock === 0" @click="startCheckout">
-            Continuar al pago <ArrowRight :size="18" aria-hidden="true" />
-          </button>
-        </div>
+        </aside>
       </section>
     </template>
 
@@ -103,6 +109,7 @@ const loadProducts = async (): Promise<void> => {
 };
 
 const selectProduct = (product: Product): void => { selectedProduct.value = product; };
+const buyProduct = (product: Product): void => { selectProduct(product); startCheckout(); };
 
 const handlePayment = async (paymentData: CheckoutPaymentData): Promise<void> => {
   if (!selectedProduct.value) return;

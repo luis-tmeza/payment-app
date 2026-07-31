@@ -500,3 +500,31 @@ h1 {
   .checkout-stepper { justify-content: space-between; }
   .checkout-stepper > div:not(:last-child)::after { width: 12px; }
 }
+
+/* Keep purchase actions visible as the catalog grows. */
+.catalog-layout { width: min(100%, 1180px); display: grid; grid-template-columns: minmax(0, 1fr) 340px; align-items: start; gap: 24px; margin-inline: auto; position: relative; z-index: 1; }
+.catalog-layout .product-grid { width: auto; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.catalog-layout .selected-product { width: auto; display: grid; grid-template-columns: 1fr; gap: 0; margin: 0; padding: 12px; position: sticky; top: 18px; }
+.catalog-layout .selected-product__media { min-height: 186px; }
+.catalog-layout .selected-product__media::after { display: none; }
+.catalog-layout .selected-product__content { gap: 14px; padding: 18px 8px 8px; }
+.catalog-layout .selected-product__content h2 { font-size: 1.45rem; }
+.catalog-layout .selected-product__details { padding-block: 12px; }
+.catalog-layout .selected-product__details strong { font-size: 1.45rem; }
+.product-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+.product-card__actions .secondary-button, .product-card__actions .pay-button { min-height: 40px; padding: 8px; font-size: .8rem; }
+.product-card__actions .secondary-button { border-color: #c5d4e2; }
+.selected-product__pay { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+@media (max-width: 960px) {
+  .catalog-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
+  .catalog-layout .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .catalog-layout { display: flex; flex-direction: column; gap: 20px; }
+  .catalog-layout .selected-product { width: 100%; position: static; order: -1; }
+  .catalog-layout .selected-product__media { min-height: 220px; }
+  .catalog-layout .product-grid { width: 100%; grid-template-columns: 1fr; }
+  .product-card__select { display: block; }
+  .product-card__select img, .product-card__select .image-placeholder { height: auto; aspect-ratio: 16 / 9; }
+  .product-card__body p { display: block; }
+}

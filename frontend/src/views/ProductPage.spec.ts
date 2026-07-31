@@ -11,6 +11,7 @@ import ProductPage from './ProductPage.vue';
 import { store } from '../store';
 
 const product = { id: 'product-1', name: 'Audifonos', description: 'Descripcion', priceCents: 16000000, stock: 2, imageUrl: null };
+const secondProduct = { id: 'product-2', name: 'Parlante', description: 'Descripcion dos', priceCents: 9000000, stock: 4, imageUrl: null };
 
 const mountPage = () => mount(ProductPage, {
   global: {
@@ -39,6 +40,15 @@ describe('ProductPage', () => {
     expect(getAcceptanceDocuments).toHaveBeenCalledOnce();
   });
 
+  it('opens checkout for the product chosen from a multi-product catalog', async () => {
+    getProducts.mockResolvedValue([product, secondProduct]);
+    getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });
+    const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.findAll('.product-card')[1].get('.pay-button').trigger('click');
+    await flushPromises();
+    expect(store.state).toMatchObject({ step: 'payment-data', productId: 'product-2' });
+  });
   it('shows a retry action when loading fails and reloads the product', async () => {
     getProducts.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce([product]);
     const wrapper = mountPage();
