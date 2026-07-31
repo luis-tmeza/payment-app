@@ -12,6 +12,10 @@
 
         <form v-if="!isSummary" class="checkout-form" @submit.prevent="continueToSummary">
           <div class="checkout-stepper" aria-label="Progreso del checkout"><div class="is-active"><span>1</span> Datos</div><div><span>2</span> Confirmacion</div><div><span>3</span> Resultado</div></div>
+          <aside class="checkout-order-context" aria-label="Resumen de la compra">
+            <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" />
+            <div><span>Estas comprando</span><strong>{{ product.name }}</strong><small>{{ formatMoney(product.priceCents) }}</small></div>
+          </aside>
           <fieldset class="form-section">
             <legend><CreditCard :size="18" /> Tarjeta</legend>
             <div class="form-grid">
