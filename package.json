@@ -14,7 +14,12 @@
     "test": "pnpm -r test",
     "test:coverage": "pnpm -r test:coverage",
     "lint": "pnpm -r lint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @payment-app/backend prisma:migrate:deploy",
+    "db:seed": "pnpm --filter @payment-app/backend prisma:seed",
+    "setup": "pnpm db:up && pnpm db:migrate && pnpm db:seed"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

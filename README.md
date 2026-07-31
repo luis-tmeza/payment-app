@@ -1,63 +1,132 @@
 # Payment App
 
-Monorepo para una prueba tecnica de checkout de pago con integracion a Wompi Sandbox.
+Aplicacion de checkout para una prueba tecnica Full Stack. Implementa un producto con inventario, pago con tarjeta mediante Wompi Sandbox, entrega, trazabilidad de transaccion y una SPA responsive.
 
-## Stack elegido
+## Stack
 
-- Frontend: Vue 3, TypeScript, Vite, Vuex 4, Vue Router, Vitest.
-- Backend: NestJS, TypeScript, Jest, Prisma, PostgreSQL.
-- Arquitectura backend: hexagonal con casos de uso, puertos y adaptadores.
-- Estado de checkout: Vuex con persistencia local para recuperar avance despues de refresh.
+- Frontend: Vue 3, TypeScript, Vite, Vuex 4, Vue Router y Vitest.
+- Backend: NestJS, TypeScript, Prisma, PostgreSQL, Swagger y Jest.
+- Integracion: Wompi Sandbox por API, tokenizacion de tarjeta, documentos de aceptacion y polling de estado.
+- Arquitectura: hexagonal en backend mediante dominio, casos de uso, puertos y adaptadores.
 
 ## Estructura
 
 ```text
-./
-  backend/   NestJS API
-  frontend/  Vue 3 SPA
+payment-app/
+  frontend/                 Vue SPA
+  backend/                  NestJS API y Prisma
+  docs/postman/             Coleccion Postman
+  docker-compose.yml        PostgreSQL local
 ```
 
-## Flujo funcional requerido
+## Flujo implementado
 
-1. Pagina de producto con descripcion, precio y unidades disponibles.
-2. Modal para tarjeta de credito y datos de entrega.
-3. Resumen con monto del producto, tarifa base y envio.
-4. Creacion de transaccion PENDING en backend y pago contra Wompi Sandbox.
-5. Resultado final, asignacion de entrega y actualizacion de stock.
+1. Consulta y muestra el producto disponible, su precio y stock.
+2. Captura tarjeta, datos de cliente y direccion de entrega en modal responsive.
+3. Detecta Visa/Mastercard y valida numero, fecha, CVV y formulario.
+4. Consulta los documentos de aceptacion actuales de Wompi y exige ambos consentimientos.
+5. Crea una transaccion interna `PENDING`, tokeniza la tarjeta y crea el pago en Wompi.
+6. Consulta el estado final; si aprueba, asigna la entrega y actualiza el inventario.
+7. Muestra resultado final y vuelve a cargar el producto.
 
-## Modelo de datos inicial
+No se persisten PAN ni CVV. Solo se guarda franquicia y ultimos cuatro digitos de la tarjeta.
 
-- products: producto, descripcion, precio y stock.
-- customers: informacion del comprador.
-- deliveries: direccion y estado de entrega.
-- transactions: referencia interna, estado, montos, informacion no sensible y respuesta de pasarela.
+## Requisitos
 
-## Comandos
+- Node.js 22 o superior.
+- pnpm 9 o superior.
+- Docker Desktop para PostgreSQL local.
+- Credenciales de Wompi Sandbox.
+
+## Configuracion local
+
+1. Instala dependencias:
 
 ```bash
 pnpm install
-pnpm dev
-pnpm test:coverage
 ```
 
-## Variables de entorno
+2. Crea `backend/.env` a partir de `backend/.env.example` y completa las credenciales:
 
-Ver [backend/.env.example](backend/.env.example) y [frontend/.env.example](frontend/.env.example).
+```dotenv
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/payment_app?schema=public"
+WOMPI_BASE_URL=https://sandbox.wompi.co/v1
+WOMPI_PUBLIC_KEY=pub_test_xxx
+WOMPI_PRIVATE_KEY=prv_test_xxx
+WOMPI_INTEGRITY_SECRET=xxx
+```
 
-Las llaves privadas de Wompi no deben versionarse. Copia los valores reales solo en `.env` local o en secretos del proveedor cloud.
+3. Levanta, migra y carga PostgreSQL:
 
-## Plan de implementacion y commits
+```bash
+pnpm setup
+```
 
-1. `chore`: base del monorepo y convenciones de desarrollo. Completado.
-2. `feat(frontend)`: Vuex, persistencia del checkout y base SPA. En curso.
-3. `feat(backend)`: consulta de producto mediante caso de uso, puerto Prisma y Swagger.
-4. `feat(frontend)`: producto conectado al API, carga, error y estado sin inventario.
-5. `feat(checkout)`: formulario modal de tarjeta y entrega, validaciones y deteccion de franquicia.
-6. `feat(transactions)`: creacion PENDING, cliente Wompi Sandbox y finalizacion atomica de pago, entrega e inventario.
-7. `feat(frontend)`: resumen, resultado de transaccion y recuperacion de estado.
-8. `test`: pruebas unitarias y cobertura superior al 80% en ambos proyectos.
-9. `docs`: Swagger, modelo de datos, configuracion local y despliegue.
+4. Inicia frontend y backend:
 
-Cada punto se confirmara en un commit funcional, verificable y sin incluir secretos.
+```bash
+pnpm dev
+```
 
+- Frontend: http://localhost:5173
+- API: http://localhost:3000/api
+- Swagger: http://localhost:3000/docs
 
+Para detener la base de datos:
+
+```bash
+pnpm db:down
+```
+
+## Pruebas
+
+```bash
+pnpm test
+pnpm test:coverage
+pnpm build
+```
+
+La coleccion esta disponible en [docs/postman/payment-app.postman_collection.json](docs/postman/payment-app.postman_collection.json).
+
+## Endpoints principales
+
+| Metodo | Ruta | Descripcion |
+| --- | --- | --- |
+| GET | `/api/health` | Estado del servicio |
+| GET | `/api/products/featured` | Producto para el checkout |
+| GET | `/api/checkout/acceptance-documents` | Enlaces actuales de consentimiento Wompi |
+| POST | `/api/checkout/transactions` | Crea y procesa una transaccion |
+
+## Modelo de datos
+
+- `Product`: producto, precio e inventario.
+- `Customer`: identificacion y datos de contacto del comprador.
+- `Delivery`: direccion y estado de entrega.
+- `Transaction`: referencia unica, montos, estado local/Wompi y respuesta de pasarela sin datos sensibles.
+
+La migracion inicial esta en `backend/prisma/migrations`. El seed crea el producto de demostracion.
+
+## Arquitectura backend
+
+- `domain/`: tipos de negocio y resultado funcional.
+- `application/`: casos de uso y puertos.
+- `infrastructure/`: Prisma, Wompi y controladores HTTP.
+- `modules/`: composicion de dependencias NestJS.
+
+Los controladores solo traducen HTTP a casos de uso. La integracion con Wompi implementa el puerto `PaymentGateway`, por lo que puede reemplazarse sin modificar el caso de uso.
+
+## Wompi Sandbox
+
+Usa tarjetas oficiales de prueba de Wompi, por ejemplo `4242 4242 4242 4242` para aprobacion y `4111 1111 1111 1111` para rechazo, con una fecha futura y CVV valido. Nunca incluyas llaves reales en Git ni en la coleccion Postman.
+
+## Despliegue
+
+El despliegue objetivo separa frontend estatico, API NestJS y PostgreSQL administrado. Antes de publicar:
+
+1. Configura secretos de Wompi y `DATABASE_URL` en el proveedor cloud.
+2. Ejecuta `pnpm --filter @payment-app/backend prisma:migrate:deploy`.
+3. Ejecuta `pnpm --filter @payment-app/backend prisma:seed` una sola vez.
+4. Define `WEB_ORIGIN` con el dominio publico del frontend.
+5. Configura una URL de eventos de Wompi para conciliacion asincrona.
+
+GitHub Actions ejecuta pruebas y builds para `develop` y `main` en `.github/workflows/ci.yml`.
