@@ -50,10 +50,11 @@ pnpm install
 
 ```dotenv
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/payment_app?schema=public"
-WOMPI_BASE_URL=https://sandbox.wompi.co/v1
+WOMPI_BASE_URL=https://api-sandbox.co.uat.wompi.dev/v1
 WOMPI_PUBLIC_KEY=pub_test_xxx
 WOMPI_PRIVATE_KEY=prv_test_xxx
 WOMPI_INTEGRITY_SECRET=xxx
+WOMPI_EVENTS_SECRET=xxx
 ```
 
 3. Levanta, migra y carga PostgreSQL:
@@ -117,6 +118,8 @@ Los controladores solo traducen HTTP a casos de uso. La integracion con Wompi im
 
 ## Wompi Sandbox
 
+Esta prueba utiliza las credenciales `stagtest` y la UAT Sandbox `https://api-sandbox.co.uat.wompi.dev/v1` entregadas en el enunciado. Si se usan credenciales nuevas con prefijo `pub_test` y `prv_test`, actualiza `WOMPI_BASE_URL` a la URL correspondiente del dashboard de Wompi.
+
 Usa tarjetas oficiales de prueba de Wompi, por ejemplo `4242 4242 4242 4242` para aprobacion y `4111 1111 1111 1111` para rechazo, con una fecha futura y CVV valido. Nunca incluyas llaves reales en Git ni en la coleccion Postman.
 
 ## Despliegue
@@ -130,3 +133,8 @@ El despliegue objetivo separa frontend estatico, API NestJS y PostgreSQL adminis
 5. Configura una URL de eventos de Wompi para conciliacion asincrona.
 
 GitHub Actions ejecuta pruebas y builds para `develop` y `main` en `.github/workflows/ci.yml`.
+
+## Validacion Sandbox realizada
+
+- Pago aprobado: transaccion `APPROVED`, entrega `ASSIGNED` e inventario disminuido.
+- Pago rechazado: transaccion `DECLINED`, entrega `CANCELLED` e inventario sin cambios.
