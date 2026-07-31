@@ -581,7 +581,6 @@ h1 {
 @media (min-width: 761px) {
   .product-card { display: flex; flex-direction: column; }
   .product-card__body { flex: 1; display: flex; flex-direction: column; }
-  .product-card__body > strong { min-height: 42px; }
   .product-card__body > p { min-height: 57px; margin-top: 0; }
   .product-card__price { margin-top: auto; padding-top: 8px; }
   .product-card__actions { margin-top: 14px; }
