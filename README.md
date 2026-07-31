@@ -105,7 +105,8 @@ La coleccion esta disponible en [docs/postman/payment-app.postman_collection.jso
 - `Product`: producto, precio e inventario.
 - `Customer`: identificacion y datos de contacto del comprador.
 - `Delivery`: direccion y estado de entrega.
-- `Transaction`: referencia unica, montos, estado local/Wompi y respuesta de pasarela sin datos sensibles.`r`n- `Product.reservedStock`: reserva temporal de inventario que se confirma al aprobar o se libera al rechazar/error.
+- `Transaction`: referencia unica, montos, estado local/Wompi y respuesta de pasarela sin datos sensibles.
+- `Product.reservedStock`: reserva temporal de inventario que se confirma al aprobar o se libera al rechazar/error.
 
 La migracion inicial esta en `backend/prisma/migrations`. El seed crea el producto de demostracion.
 
@@ -136,6 +137,14 @@ El despliegue objetivo separa frontend estatico, API NestJS y PostgreSQL adminis
 
 GitHub Actions ejecuta pruebas y builds para `develop` y `main` en `.github/workflows/ci.yml`.
 
+## Cobertura de pruebas
+
+La ejecucion validada con `pnpm test:coverage` cumple el minimo solicitado de 80% en ambos proyectos:
+
+| Proyecto | Sentencias | Ramas | Funciones | Lineas |
+| --- | ---: | ---: | ---: | ---: |
+| Frontend | 92.42% | 86.61% | 87.23% | 92.42% |
+| Backend (nucleo de aplicacion) | 92.13% | 84.21% | 100% | 94.36% |
 ## Validacion Sandbox realizada
 
 - Pago aprobado: transaccion `APPROVED`, entrega `ASSIGNED` e inventario disminuido.
