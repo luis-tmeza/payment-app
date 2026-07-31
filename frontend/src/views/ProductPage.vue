@@ -17,21 +17,21 @@
       <button class="secondary-button" type="button" @click="loadProducts">Reintentar</button>
     </section>
 
-    <template v-else-if="products.length && selectedProduct">
+    <template v-else-if="products.length">
       <section class="catalog-toolbar" aria-label="Informacion del catalogo">
         <p><strong>{{ products.length }} productos</strong> disponibles para envio nacional</p>
-        <span>Elige un producto o compra directamente desde su tarjeta</span>
+        <span>Selecciona Ver detalle para comparar o compra directamente desde una tarjeta</span>
       </section>
 
-      <section id="catalog" class="catalog-layout" aria-label="Catalogo de productos">
+      <section id="catalog" class="catalog-layout" :class="{ 'catalog-layout--has-detail': selectedProduct }" aria-label="Catalogo de productos">
         <section class="product-grid" aria-label="Productos disponibles">
-          <article v-for="item in products" :key="item.id" class="product-card" :class="{ 'product-card--selected': item.id === selectedProduct.id }">
+          <article v-for="item in products" :key="item.id" class="product-card" :class="{ 'product-card--selected': item.id === selectedProduct?.id }">
             <button type="button" class="product-card__select" :aria-label="`Ver detalle de ${item.name}`" @click="viewProduct(item)">
               <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
               <div v-else class="image-placeholder" aria-hidden="true"></div>
             </button>
             <div class="product-card__body">
-              <div class="product-card__meta"><span>{{ item.stock > 0 ? `${item.stock} disponibles` : 'Agotado' }}</span><span v-if="item.id === selectedProduct.id">Seleccionado</span></div>
+              <div class="product-card__meta"><span>{{ item.stock > 0 ? `${item.stock} disponibles` : 'Agotado' }}</span><span v-if="item.id === selectedProduct?.id">Seleccionado</span></div>
               <strong>{{ item.name }}</strong>
               <p>{{ item.description }}</p>
               <span class="product-card__price">{{ formatMoney(item.priceCents) }}</span>
@@ -43,7 +43,7 @@
           </article>
         </section>
 
-        <aside ref="productDetailPanel" :key="selectedProduct.id" class="selected-product" tabindex="-1" aria-label="Compra del producto seleccionado" aria-live="polite">
+        <aside v-if="selectedProduct" ref="productDetailPanel" :key="selectedProduct.id" class="selected-product" tabindex="-1" aria-label="Compra del producto seleccionado" aria-live="polite">
           <div class="selected-product__media">
             <img v-if="selectedProduct.imageUrl" :src="selectedProduct.imageUrl" :alt="selectedProduct.name" />
           </div>
@@ -101,7 +101,7 @@ const loadProducts = async (): Promise<void> => {
   loadError.value = false;
   try {
     products.value = await getProducts();
-    selectedProduct.value = products.value.find((product) => product.id === store.state.productId) ?? products.value[0] ?? null;
+    selectedProduct.value = null;
   } catch {
     loadError.value = true;
   } finally {

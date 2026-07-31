@@ -44,6 +44,7 @@ describe('ProductPage', () => {
     getProducts.mockResolvedValue([product, secondProduct]);
     const wrapper = mountPage();
     await flushPromises();
+    expect(wrapper.find('.selected-product').exists()).toBe(false);
     await wrapper.findAll('.product-card')[1].get('.secondary-button').trigger('click');
     await flushPromises();
     expect(wrapper.get('.selected-product').text()).toContain('Parlante');
@@ -70,8 +71,11 @@ describe('ProductPage', () => {
 
   it('records payment results and returns to the product', async () => {
     getProducts.mockResolvedValue([product]);
+    getAcceptanceDocuments.mockResolvedValue({ termsUrl: 'https://terms', personalDataUrl: 'https://data' });
     createCheckoutTransaction.mockResolvedValue({ reference: 'PAY-1', status: 'APPROVED', totalAmountCents: 17150000 });
     const wrapper = mountPage();
+    await flushPromises();
+    await wrapper.get('.pay-button').trigger('click');
     await flushPromises();
     await wrapper.get('.confirm-payment').trigger('click');
     await flushPromises();
